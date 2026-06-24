@@ -63,7 +63,7 @@ function TestimonialsPage() {
         title={t('testimonials.pageTitle')}
         titleHighlight={t('testimonials.pageHighlight')}
         subtitle={t('testimonials.pageSubtitle')}
-        backgroundImage={images.officeTeam}
+        backgroundImage={images.testimonialsHero}
         primaryTo="/contact"
         primaryLabel={t('cta.form')}
         secondaryTo="/case-studies"

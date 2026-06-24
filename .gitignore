@@ -58,8 +58,9 @@ Desktop.ini
 # Optional local tooling
 *.local
 
-# Temporary files
-tmp/
+# Uploaded internship resumes (stored on server disk)
+backend/uploads/
+
 temp/
 *.tmp
 *.temp

@@ -57,13 +57,13 @@ function ContactPage() {
     '@context': 'https://schema.org',
     '@type': 'LegalService',
     name: SITE.name,
-    image: images.hero,
+    image: images.building,
     telephone: SITE.phone,
     email: SITE.email,
     address: {
       '@type': 'PostalAddress',
       streetAddress: SITE.address,
-      addressLocality: 'Prayagraj',
+      addressLocality: 'Lucknow',
       addressRegion: 'Uttar Pradesh',
       postalCode: '211001',
       addressCountry: 'IN',
@@ -88,7 +88,7 @@ function ContactPage() {
         title={t('contact.title')}
         titleHighlight={t('contact.titleHighlight')}
         subtitle={t('contact.subtitle')}
-        backgroundImage={images.cta}
+        backgroundImage={images.contactHero}
         primaryHref="#booking"
         primaryLabel={t('contact.booking')}
         secondaryTo="/services"
@@ -189,17 +189,30 @@ function ContactPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.45 }}
-            className={`mt-14 rounded-2xl overflow-hidden border h-[320px] md:h-[420px] ${
-              isLight ? 'border-navy/10' : 'border-white/10'
-            }`}
+            className="mt-14"
           >
-            <iframe
-              title={t('contact.map')}
-              src={SITE.mapEmbed}
-              className="w-full h-full border-0 grayscale-[40%] hover:grayscale-0 transition-all duration-500"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
+            <div className={`rounded-2xl overflow-hidden border h-[320px] md:h-[420px] ${
+              isLight ? 'border-navy/10' : 'border-white/10'
+            }`}>
+              <iframe
+                title={t('contact.map')}
+                src={SITE.mapEmbed}
+                className="w-full h-full border-0 grayscale-[40%] hover:grayscale-0 transition-all duration-500"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-cross-origin"
+                allowFullScreen
+              />
+            </div>
+            <p className="mt-3 text-center">
+              <a
+                href={SITE.mapLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-semibold text-accent hover:underline"
+              >
+                {t('contact.directions')} →
+              </a>
+            </p>
           </motion.div>
         </div>
       </section>

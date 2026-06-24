@@ -1,10 +1,13 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster } from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 import MainLayout from './layouts/MainLayout';
-import PrivateRoute from './components/PrivateRoute';
+import ProtectedRoute from './components/ProtectedRoute';
+import LegalDisclaimerModal from './components/legal/LegalDisclaimerModal';
 import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
 import { SITE } from './constants/site';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -15,8 +18,14 @@ const CaseStudiesPage = lazy(() => import('./pages/CaseStudiesPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const InternshipPage = lazy(() => import('./pages/InternshipPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfUse = lazy(() => import('./pages/TermsOfUse'));
+const Disclaimer = lazy(() => import('./pages/Disclaimer'));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
-const Login = lazy(() => import('./components/Login'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 
 function PageSkeleton() {
   return (
@@ -42,7 +51,7 @@ const orgSchema = {
   address: {
     '@type': 'PostalAddress',
     streetAddress: SITE.address,
-    addressLocality: 'Prayagraj',
+    addressLocality: 'Lucknow',
     addressRegion: 'Uttar Pradesh',
     postalCode: '211001',
     addressCountry: 'IN',
@@ -52,58 +61,83 @@ const orgSchema = {
   openingHours: 'Mo-Sa 10:00-19:00',
 };
 
-function App() {
+const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
+
+function AppRoutes() {
   return (
-    <ThemeProvider>
-      <Router>
-        <Helmet
-          defaultTitle="Shivam Mishra and Associates | Premium Legal Counsel"
-          titleTemplate="%s | Shivam Mishra & Associates"
-        >
-          <meta name="theme-color" content="#0B0F19" />
-          <meta property="og:site_name" content={SITE.name} />
-          <meta property="og:type" content="website" />
-          <meta name="twitter:card" content="summary_large_image" />
-          <script type="application/ld+json">{JSON.stringify(orgSchema)}</script>
-        </Helmet>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4500,
-            style: {
-              background: '#0B0F19',
-              color: '#F8F6F2',
-              border: '1px solid rgba(201, 162, 39, 0.25)',
-            },
-          }}
+    <>
+      <Helmet
+        defaultTitle="Shivam Mishra & Associates | Legal Services in India"
+        titleTemplate="%s | Shivam Mishra & Associates"
+      >
+        <meta name="theme-color" content="#0B0F19" />
+        <meta property="og:site_name" content={SITE.name} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <script type="application/ld+json">{JSON.stringify(orgSchema)}</script>
+      </Helmet>
+      <LegalDisclaimerModal />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4500,
+          style: {
+            background: '#0B0F19',
+            color: '#F8F6F2',
+            border: '1px solid rgba(201, 162, 39, 0.25)',
+          },
+        }}
+      />
+      <Routes>
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Suspense fallback={<PageSkeleton />}><HomePage /></Suspense>} />
+          <Route path="/focus-areas" element={<Suspense fallback={<PageSkeleton />}><FocusAreasPage /></Suspense>} />
+          <Route path="/services" element={<Suspense fallback={<PageSkeleton />}><ServicesPage /></Suspense>} />
+          <Route path="/testimonials" element={<Suspense fallback={<PageSkeleton />}><TestimonialsPage /></Suspense>} />
+          <Route path="/case-studies" element={<Suspense fallback={<PageSkeleton />}><CaseStudiesPage /></Suspense>} />
+          <Route path="/about" element={<Suspense fallback={<PageSkeleton />}><AboutPage /></Suspense>} />
+          <Route path="/contact" element={<Suspense fallback={<PageSkeleton />}><ContactPage /></Suspense>} />
+          <Route path="/internship" element={<Suspense fallback={<PageSkeleton />}><InternshipPage /></Suspense>} />
+          <Route path="/privacy-policy" element={<Suspense fallback={<PageSkeleton />}><PrivacyPolicy /></Suspense>} />
+          <Route path="/terms-of-use" element={<Suspense fallback={<PageSkeleton />}><TermsOfUse /></Suspense>} />
+          <Route path="/disclaimer" element={<Suspense fallback={<PageSkeleton />}><Disclaimer /></Suspense>} />
+        </Route>
+        <Route path="/blog" element={<Navigate to="/case-studies" replace />} />
+        <Route path="/login" element={<Suspense fallback={<PageSkeleton />}><Login /></Suspense>} />
+        <Route path="/register" element={<Suspense fallback={<PageSkeleton />}><Register /></Suspense>} />
+        <Route path="/forgot-password" element={<Suspense fallback={<PageSkeleton />}><ForgotPassword /></Suspense>} />
+        <Route path="/reset-password" element={<Suspense fallback={<PageSkeleton />}><ResetPassword /></Suspense>} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Suspense fallback={<PageSkeleton />}>
+                <AdminDashboard />
+              </Suspense>
+            </ProtectedRoute>
+          }
         />
-        <Routes>
-          <Route element={<MainLayout />}>
-            <Route path="/" element={<Suspense fallback={<PageSkeleton />}><HomePage /></Suspense>} />
-            <Route path="/focus-areas" element={<Suspense fallback={<PageSkeleton />}><FocusAreasPage /></Suspense>} />
-            <Route path="/services" element={<Suspense fallback={<PageSkeleton />}><ServicesPage /></Suspense>} />
-            <Route path="/testimonials" element={<Suspense fallback={<PageSkeleton />}><TestimonialsPage /></Suspense>} />
-            <Route path="/case-studies" element={<Suspense fallback={<PageSkeleton />}><CaseStudiesPage /></Suspense>} />
-            <Route path="/about" element={<Suspense fallback={<PageSkeleton />}><AboutPage /></Suspense>} />
-            <Route path="/contact" element={<Suspense fallback={<PageSkeleton />}><ContactPage /></Suspense>} />
-            <Route path="/internship" element={<Suspense fallback={<PageSkeleton />}><InternshipPage /></Suspense>} />
-          </Route>
-          <Route path="/blog" element={<Navigate to="/case-studies" replace />} />
-          <Route path="/login" element={<Suspense fallback={<PageSkeleton />}><Login /></Suspense>} />
-          <Route
-            path="/admin"
-            element={
-              <PrivateRoute>
-                <Suspense fallback={<PageSkeleton />}>
-                  <AdminDashboard />
-                </Suspense>
-              </PrivateRoute>
-            }
-          />
-        </Routes>
-      </Router>
+      </Routes>
+    </>
+  );
+}
+
+function App() {
+  const content = (
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
+
+  if (googleClientId) {
+    return <GoogleOAuthProvider clientId={googleClientId}>{content}</GoogleOAuthProvider>;
+  }
+
+  return content;
 }
 
 export default App;

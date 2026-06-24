@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { TRUST_METRICS } from '../../../constants/site';
-import { practiceAreas, whyChooseItems, journeySteps, caseResults, testimonials, faqItems } from '../../../data/practiceAreas';
+import { practiceAreas, whyChooseItems, testimonials } from '../../../data/practiceAreas';
 import { fadeUp, staggerContainer, easePremium } from '../../../animations/variants';
 import SectionHeader from '../../ui/SectionHeader';
 import GlassCard from '../../ui/GlassCard';
@@ -19,10 +19,11 @@ export function TrustBar() {
   const { t } = useTranslation();
   const { theme } = useThemeMode();
   const isLight = theme === 'light';
+  const highlights = whyChooseItems.slice(0, 3);
 
   return (
     <section className={`section-padding border-y ${isLight ? 'bg-white border-navy/10' : 'bg-secondary/50 border-white/[0.06]'}`}>
-      <div className="container-premium">
+      <div className="container-premium space-y-10">
         <motion.div
           variants={staggerContainer}
           initial="hidden"
@@ -36,6 +37,40 @@ export function TrustBar() {
               <p className={`mt-1 text-xs sm:text-sm ${isLight ? 'text-muted' : 'text-slate-400'}`}>{t(m.labelKey)}</p>
             </motion.div>
           ))}
+        </motion.div>
+
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="max-w-3xl mx-auto text-center space-y-6"
+        >
+          <motion.div variants={fadeUp}>
+            <p className="section-kicker">{t('whyChoose.kicker')}</p>
+            <h2 className={`font-display text-xl sm:text-2xl font-semibold ${isLight ? 'text-ink' : 'text-off-white'}`}>
+              {t('whyChoose.title')}
+            </h2>
+            <p className={`mt-2 text-sm ${isLight ? 'text-muted' : 'text-slate-400'}`}>{t('whyChoose.subtitle')}</p>
+          </motion.div>
+          <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
+            {highlights.map((item) => (
+              <div
+                key={item.key}
+                className={`rounded-xl border p-4 ${isLight ? 'border-navy/10 bg-off-white' : 'border-white/10 bg-white/5'}`}
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/15 text-accent mb-3">
+                  <Icon name={item.icon} className="w-5 h-5" />
+                </div>
+                <h3 className={`font-medium text-sm ${isLight ? 'text-ink' : 'text-off-white'}`}>
+                  {t(`whyChoose.${item.key}`)}
+                </h3>
+                <p className={`mt-1 text-xs leading-relaxed ${isLight ? 'text-muted' : 'text-slate-400'}`}>
+                  {t(`whyChoose.${item.key}Desc`)}
+                </p>
+              </div>
+            ))}
+          </motion.div>
         </motion.div>
       </div>
     </section>

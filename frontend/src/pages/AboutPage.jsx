@@ -19,6 +19,7 @@ function AboutPage() {
   const isLight = theme === 'light';
 
   const commitments = ['about.commitment1', 'about.commitment2', 'about.commitment3', 'about.commitment4'];
+  const growthItems = ['about.growth1', 'about.growth2', 'about.growth3', 'about.growth4'];
 
   return (
     <>
@@ -40,7 +41,7 @@ function AboutPage() {
             address: {
               '@type': 'PostalAddress',
               streetAddress: SITE.address,
-              addressLocality: 'Prayagraj',
+              addressLocality: 'Lucknow',
               addressRegion: 'Uttar Pradesh',
               addressCountry: 'IN',
             },
@@ -53,12 +54,67 @@ function AboutPage() {
         title={t('about.title')}
         titleHighlight={t('about.titleHighlight')}
         subtitle={t('about.subtitle')}
-        backgroundImage={images.officeTeam}
+        backgroundImage={images.aboutHero}
         primaryTo="/contact"
         primaryLabel={t('nav.bookConsultation')}
-        secondaryTo="/services"
-        secondaryLabel={t('nav.services')}
+        secondaryTo="/focus-areas"
+        secondaryLabel={t('nav.practiceAreas')}
       />
+
+      <section className={`section-padding border-b ${isLight ? 'bg-white border-navy/10' : 'bg-secondary/20 border-white/[0.06]'}`}>
+        <div className="container-premium">
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center"
+          >
+            <motion.div variants={fadeUp} className="lg:col-span-5">
+              <div className="relative mx-auto max-w-md lg:max-w-none">
+                <div className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-accent/25 via-transparent to-accent/10 blur-sm" aria-hidden />
+                <img
+                  src={images.advocateCourtCorridor}
+                  alt={t('about.advocateAlt')}
+                  className="relative w-full rounded-2xl object-cover object-top aspect-[3/4] shadow-depth-lg ring-1 ring-white/10"
+                  loading="eager"
+                />
+                <div className={`absolute bottom-4 left-4 right-4 rounded-xl border px-4 py-3 backdrop-blur-md ${
+                  isLight ? 'border-navy/10 bg-off-white/90' : 'border-white/10 bg-primary/80'
+                }`}>
+                  <p className={`font-heading text-sm ${isLight ? 'text-ink' : 'text-off-white'}`}>{t('about.advocateName')}</p>
+                  <p className="text-xs text-accent mt-0.5">{t('about.advocateRole')}</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div variants={fadeUp} className="lg:col-span-7 space-y-6">
+              <div>
+                <p className="section-kicker">{t('about.advocateKicker')}</p>
+                <h2 className={`font-heading text-display-sm mt-3 ${isLight ? 'text-ink' : 'text-off-white'}`}>
+                  {t('about.advocateName')}
+                </h2>
+                <p className="mt-2 text-sm font-medium text-accent">{t('about.advocateRole')}</p>
+              </div>
+              <p className={`text-lg leading-relaxed ${isLight ? 'text-muted' : 'text-slate-300'}`}>
+                {t('about.advocateBio')}
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {[
+                  { value: '2+', label: t('stats.years') },
+                  { value: '130+', label: t('stats.cases') },
+                  { value: '200+', label: t('stats.clients') },
+                ].map((stat) => (
+                  <GlassCard key={stat.label} className="p-4 text-center">
+                    <p className="font-heading text-2xl text-accent tabular-nums">{stat.value}</p>
+                    <p className={`mt-1 text-xs ${isLight ? 'text-muted' : 'text-slate-400'}`}>{stat.label}</p>
+                  </GlassCard>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
 
       <section className={`section-padding ${isLight ? 'bg-off-white' : 'bg-primary'}`}>
         <div className="container-premium">
@@ -74,15 +130,29 @@ function AboutPage() {
             viewport={{ once: true }}
             className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start"
           >
-            <motion.div variants={fadeUp} className="space-y-5">
+            <motion.div variants={fadeUp} className="space-y-5 order-2 lg:order-1">
               <p className={`text-lg leading-relaxed ${isLight ? 'text-muted' : 'text-slate-300'}`}>
                 {t('about.storyP1')}
               </p>
               <p className={`text-lg leading-relaxed ${isLight ? 'text-muted' : 'text-slate-300'}`}>
                 {t('about.storyP2')}
               </p>
+              <ul className="space-y-3 text-sm">
+                {growthItems.map((k) => (
+                  <li key={k} className={`flex gap-3 ${isLight ? 'text-muted' : 'text-slate-300'}`}>
+                    <span className="text-accent shrink-0">→</span> {t(k)}
+                  </li>
+                ))}
+              </ul>
             </motion.div>
-            <GlassCard variants={fadeUp} className="p-8 space-y-6">
+            <motion.div variants={fadeUp} className="space-y-5 order-1 lg:order-2">
+              <img
+                src={images.advocateOffice}
+                alt={t('about.officeAlt')}
+                className="w-full rounded-2xl object-cover aspect-[4/3] shadow-depth-md ring-1 ring-white/10"
+                loading="lazy"
+              />
+              <GlassCard className="p-8 space-y-6">
                 <h3 className={`font-heading text-xl ${isLight ? 'text-ink' : 'text-off-white'}`}>
                   {t('about.commitmentTitle')}
                 </h3>
@@ -97,6 +167,7 @@ function AboutPage() {
                   ))}
                 </ul>
               </GlassCard>
+            </motion.div>
           </motion.div>
         </div>
       </section>

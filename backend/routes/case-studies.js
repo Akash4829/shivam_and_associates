@@ -8,6 +8,7 @@ const {
   deleteCaseStudy,
 } = require('../controllers/blogController');
 const { authenticateToken } = require('../middleware/authMiddleware');
+const { adminMiddleware } = require('../middleware/adminMiddleware');
 
 /**
  * =============================================================================
@@ -34,7 +35,7 @@ const { authenticateToken } = require('../middleware/authMiddleware');
  * SDLC / audit: changes here should stay aligned with the controller contract and
  *   frontend Admin Dashboard form fields.
  */
-router.post('/', authenticateToken, createCaseStudy);
+router.post('/', authenticateToken, adminMiddleware, createCaseStudy);
 
 /**
  * ----------------------------------------------------------------------------
@@ -69,7 +70,7 @@ router.get('/:id', getCaseStudyById);
  * Summary: Update an existing case study (admin only). Same auth as POST /.
  * Body: full field set as documented on create (caller should send all updatable fields).
  */
-router.put('/:id', authenticateToken, updateCaseStudy);
+router.put('/:id', authenticateToken, adminMiddleware, updateCaseStudy);
 
 /**
  * ----------------------------------------------------------------------------
@@ -77,6 +78,6 @@ router.put('/:id', authenticateToken, updateCaseStudy);
  * ----------------------------------------------------------------------------
  * Summary: Delete a case study (admin only). Returns 200 with message on success.
  */
-router.delete('/:id', authenticateToken, deleteCaseStudy);
+router.delete('/:id', authenticateToken, adminMiddleware, deleteCaseStudy);
 
 module.exports = router;

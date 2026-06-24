@@ -67,10 +67,15 @@ export function ConsultationForm() {
     const e = {};
     if (step === 1) {
       if (!data.client_name.trim()) e.client_name = t('form.errors.name');
-      if (!/^\d{10}$/.test(data.phone_number.replace(/\D/g, ''))) e.phone_number = t('form.errors.phone');
-      if (!/\S+@\S+\.\S+/.test(data.email)) e.email = t('form.errors.email');
+      const digits = data.phone_number.replace(/\D/g, '');
+      const normalized = digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits;
+      if (!/^[6-9]\d{9}$/.test(normalized)) e.phone_number = t('form.errors.phone');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) e.email = t('form.errors.email');
     }
-    if (step === 2 && !data.case_summary.trim()) e.case_summary = t('form.errors.summary');
+    if (step === 2) {
+      if (!data.case_summary.trim()) e.case_summary = t('form.errors.summary');
+      else if (data.case_summary.length > 2000) e.case_summary = t('form.errors.summary');
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -79,11 +84,24 @@ export function ConsultationForm() {
     if (!validateStep()) return;
     setLoading(true);
     try {
-      await appointmentsService.create(data);
+      const digits = data.phone_number.replace(/\D/g, '');
+      const normalizedPhone =
+        digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits;
+      const payload = {
+        ...data,
+        phone_number: normalizedPhone,
+        case_summary: data.case_summary || undefined,
+        preferred_date: data.preferred_date || undefined,
+      };
+      await appointmentsService.create(payload);
       setSubmitted(true);
       events.formSubmit('consultation');
-    } catch {
-      setErrors({ submit: t('form.errors.submit') });
+    } catch (err) {
+      const apiError =
+        err?.response?.data?.errors?.[0]?.message ||
+        err?.response?.data?.error ||
+        t('form.errors.submit');
+      setErrors({ submit: apiError });
     } finally {
       setLoading(false);
     }

@@ -8,6 +8,13 @@ import { events } from '../../services/analytics';
 import { useThemeMode } from '../../context/ThemeContext';
 import { easePremium } from '../../animations/variants';
 
+const MAX_RESUME_BYTES = 5 * 1024 * 1024;
+const ACCEPTED_RESUME_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+
 export function InternshipApplicationForm() {
   const { t } = useTranslation();
   const { theme } = useThemeMode();
@@ -17,8 +24,12 @@ export function InternshipApplicationForm() {
     applicant_name: '',
     email: '',
     phone_number: '',
-    statement: '',
+    college_university: '',
+    current_year_semester: '',
+    areas_of_interest: '',
+    cover_letter: '',
   });
+  const [resume, setResume] = useState(null);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -31,11 +42,36 @@ export function InternshipApplicationForm() {
   const validate = () => {
     const e = {};
     if (!data.applicant_name.trim()) e.applicant_name = t('internship.form.errors.name');
-    if (!/\S+@\S+\.\S+/.test(data.email)) e.email = t('internship.form.errors.email');
-    if (!/^\d{10}$/.test(data.phone_number.replace(/\D/g, ''))) e.phone_number = t('internship.form.errors.phone');
-    if (!data.statement.trim()) e.statement = t('internship.form.errors.statement');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) e.email = t('internship.form.errors.email');
+    const digits = data.phone_number.replace(/\D/g, '');
+    const normalized = digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits;
+    if (!/^[6-9]\d{9}$/.test(normalized)) e.phone_number = t('internship.form.errors.phone');
+    if (!data.college_university.trim()) e.college_university = t('internship.form.errors.college');
+    if (!data.current_year_semester.trim()) e.current_year_semester = t('internship.form.errors.yearSemester');
+    if (!data.areas_of_interest.trim()) e.areas_of_interest = t('internship.form.errors.areasOfInterest');
+    if (!resume) {
+      e.resume = t('internship.form.errors.resume');
+    } else if (!ACCEPTED_RESUME_TYPES.includes(resume.type)) {
+      e.resume = t('internship.form.errors.resumeType');
+    } else if (resume.size > MAX_RESUME_BYTES) {
+      e.resume = t('internship.form.errors.resume');
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
+  };
+
+  const resetForm = () => {
+    setData({
+      applicant_name: '',
+      email: '',
+      phone_number: '',
+      college_university: '',
+      current_year_semester: '',
+      areas_of_interest: '',
+      cover_letter: '',
+    });
+    setResume(null);
+    setErrors({});
   };
 
   const handleSubmit = async (e) => {
@@ -43,14 +79,27 @@ export function InternshipApplicationForm() {
     if (!validate()) return;
     setLoading(true);
     try {
-      const response = await internshipService.apply(data);
+      const digits = data.phone_number.replace(/\D/g, '');
+      const normalizedPhone =
+        digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits;
+
+      const formData = new FormData();
+      Object.entries({ ...data, phone_number: normalizedPhone }).forEach(([key, value]) => {
+        if (value) formData.append(key, value);
+      });
+      formData.append('resume', resume);
+      const response = await internshipService.apply(formData);
       if (response.status === 201 || response.status === 200) {
         setSubmitted(true);
-        setData({ applicant_name: '', email: '', phone_number: '', statement: '' });
+        resetForm();
         events.formSubmit('internship');
       }
-    } catch {
-      setErrors({ submit: t('internship.form.errors.submit') });
+    } catch (err) {
+      const apiError =
+        err?.response?.data?.errors?.[0]?.message ||
+        err?.response?.data?.error ||
+        t('internship.form.errors.submit');
+      setErrors({ submit: apiError });
     } finally {
       setLoading(false);
     }
@@ -100,66 +149,136 @@ export function InternshipApplicationForm() {
       </AnimatePresence>
 
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label htmlFor="applicant_name" className={`block text-xs font-semibold mb-1.5 ${isLight ? 'text-ink/70' : 'text-slate-300'}`}>
+              {t('internship.form.name')} *
+            </label>
+            <input
+              id="applicant_name"
+              type="text"
+              value={data.applicant_name}
+              onChange={(e) => set('applicant_name', e.target.value)}
+              className={`${inputCls} !pt-3.5 !pb-3.5 w-full`}
+              autoComplete="name"
+              aria-invalid={!!errors.applicant_name}
+            />
+            {errors.applicant_name && <p className="mt-1.5 text-sm text-red-400">{errors.applicant_name}</p>}
+          </div>
+          <div>
+            <label htmlFor="email" className={`block text-xs font-semibold mb-1.5 ${isLight ? 'text-ink/70' : 'text-slate-300'}`}>
+              {t('internship.form.email')} *
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={data.email}
+              onChange={(e) => set('email', e.target.value)}
+              className={`${inputCls} !pt-3.5 !pb-3.5 w-full`}
+              autoComplete="email"
+              aria-invalid={!!errors.email}
+            />
+            {errors.email && <p className="mt-1.5 text-sm text-red-400">{errors.email}</p>}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label htmlFor="phone_number" className={`block text-xs font-semibold mb-1.5 ${isLight ? 'text-ink/70' : 'text-slate-300'}`}>
+              {t('internship.form.phone')} *
+            </label>
+            <input
+              id="phone_number"
+              type="tel"
+              value={data.phone_number}
+              onChange={(e) => set('phone_number', e.target.value)}
+              className={`${inputCls} !pt-3.5 !pb-3.5 w-full`}
+              autoComplete="tel"
+              aria-invalid={!!errors.phone_number}
+            />
+            {errors.phone_number && <p className="mt-1.5 text-sm text-red-400">{errors.phone_number}</p>}
+          </div>
+          <div>
+            <label htmlFor="college_university" className={`block text-xs font-semibold mb-1.5 ${isLight ? 'text-ink/70' : 'text-slate-300'}`}>
+              {t('internship.form.college')} *
+            </label>
+            <input
+              id="college_university"
+              type="text"
+              value={data.college_university}
+              onChange={(e) => set('college_university', e.target.value)}
+              className={`${inputCls} !pt-3.5 !pb-3.5 w-full`}
+              aria-invalid={!!errors.college_university}
+            />
+            {errors.college_university && <p className="mt-1.5 text-sm text-red-400">{errors.college_university}</p>}
+          </div>
+        </div>
+
         <div>
-          <label htmlFor="applicant_name" className={`block text-xs font-semibold mb-1.5 ${isLight ? 'text-ink/70' : 'text-slate-300'}`}>
-            {t('internship.form.name')} *
+          <label htmlFor="current_year_semester" className={`block text-xs font-semibold mb-1.5 ${isLight ? 'text-ink/70' : 'text-slate-300'}`}>
+            {t('internship.form.yearSemester')} *
           </label>
           <input
-            id="applicant_name"
+            id="current_year_semester"
             type="text"
-            value={data.applicant_name}
-            onChange={(e) => set('applicant_name', e.target.value)}
-            className={`${inputCls} !pt-3.5 !pb-3.5`}
-            autoComplete="name"
-            aria-invalid={!!errors.applicant_name}
+            value={data.current_year_semester}
+            onChange={(e) => set('current_year_semester', e.target.value)}
+            className={`${inputCls} !pt-3.5 !pb-3.5 w-full`}
+            placeholder="e.g. 3rd Year / 5th Semester"
+            aria-invalid={!!errors.current_year_semester}
           />
-          {errors.applicant_name && <p className="mt-1.5 text-sm text-red-400">{errors.applicant_name}</p>}
+          {errors.current_year_semester && <p className="mt-1.5 text-sm text-red-400">{errors.current_year_semester}</p>}
         </div>
+
         <div>
-          <label htmlFor="email" className={`block text-xs font-semibold mb-1.5 ${isLight ? 'text-ink/70' : 'text-slate-300'}`}>
-            {t('internship.form.email')} *
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={data.email}
-            onChange={(e) => set('email', e.target.value)}
-            className={`${inputCls} !pt-3.5 !pb-3.5`}
-            autoComplete="email"
-            aria-invalid={!!errors.email}
-          />
-          {errors.email && <p className="mt-1.5 text-sm text-red-400">{errors.email}</p>}
-        </div>
-        <div>
-          <label htmlFor="phone_number" className={`block text-xs font-semibold mb-1.5 ${isLight ? 'text-ink/70' : 'text-slate-300'}`}>
-            {t('internship.form.phone')} *
-          </label>
-          <input
-            id="phone_number"
-            type="tel"
-            value={data.phone_number}
-            onChange={(e) => set('phone_number', e.target.value)}
-            className={`${inputCls} !pt-3.5 !pb-3.5`}
-            autoComplete="tel"
-            aria-invalid={!!errors.phone_number}
-          />
-          {errors.phone_number && <p className="mt-1.5 text-sm text-red-400">{errors.phone_number}</p>}
-        </div>
-        <div>
-          <label htmlFor="statement" className={`block text-xs font-semibold mb-1.5 ${isLight ? 'text-ink/70' : 'text-slate-300'}`}>
-            {t('internship.form.statement')} *
+          <label htmlFor="areas_of_interest" className={`block text-xs font-semibold mb-1.5 ${isLight ? 'text-ink/70' : 'text-slate-300'}`}>
+            {t('internship.form.areasOfInterest')} *
           </label>
           <textarea
-            id="statement"
-            value={data.statement}
-            onChange={(e) => set('statement', e.target.value)}
-            rows={5}
-            className={`${inputCls} !pt-3.5 !pb-3.5 resize-none`}
-            placeholder={t('internship.form.statementHint')}
-            aria-invalid={!!errors.statement}
+            id="areas_of_interest"
+            value={data.areas_of_interest}
+            onChange={(e) => set('areas_of_interest', e.target.value)}
+            rows={3}
+            className={`${inputCls} !pt-3.5 !pb-3.5 resize-none w-full`}
+            placeholder={t('internship.form.areasHint')}
+            aria-invalid={!!errors.areas_of_interest}
           />
-          {errors.statement && <p className="mt-1.5 text-sm text-red-400">{errors.statement}</p>}
+          {errors.areas_of_interest && <p className="mt-1.5 text-sm text-red-400">{errors.areas_of_interest}</p>}
         </div>
+
+        <div>
+          <label htmlFor="resume" className={`block text-xs font-semibold mb-1.5 ${isLight ? 'text-ink/70' : 'text-slate-300'}`}>
+            {t('internship.form.resume')} *
+          </label>
+          <input
+            id="resume"
+            type="file"
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            onChange={(e) => {
+              setResume(e.target.files?.[0] || null);
+              if (errors.resume) setErrors((prev) => ({ ...prev, resume: '' }));
+            }}
+            className={`block w-full text-sm ${isLight ? 'text-muted' : 'text-slate-300'} file:mr-4 file:rounded-xl file:border-0 file:bg-accent file:px-4 file:py-2.5 file:text-sm file:font-semibold file:text-primary`}
+            aria-invalid={!!errors.resume}
+          />
+          <p className={`mt-1.5 text-xs ${isLight ? 'text-muted' : 'text-slate-500'}`}>{t('internship.form.resumeHint')}</p>
+          {errors.resume && <p className="mt-1.5 text-sm text-red-400">{errors.resume}</p>}
+        </div>
+
+        <div>
+          <label htmlFor="cover_letter" className={`block text-xs font-semibold mb-1.5 ${isLight ? 'text-ink/70' : 'text-slate-300'}`}>
+            {t('internship.form.coverLetter')}
+          </label>
+          <textarea
+            id="cover_letter"
+            value={data.cover_letter}
+            onChange={(e) => set('cover_letter', e.target.value)}
+            rows={4}
+            className={`${inputCls} !pt-3.5 !pb-3.5 resize-none w-full`}
+            placeholder={t('internship.form.coverLetterHint')}
+          />
+        </div>
+
         <Button type="submit" onClick={undefined} disabled={loading} className="w-full sm:w-auto">
           {loading ? t('internship.form.submitting') : t('internship.form.submit')}
         </Button>

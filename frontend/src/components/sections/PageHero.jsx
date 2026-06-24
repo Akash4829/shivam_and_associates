@@ -56,7 +56,7 @@ export function PageHero({
           <img
             src={backgroundImage}
             alt=""
-            className="h-full w-full object-cover opacity-35"
+            className="h-full w-full object-cover object-[center_20%] opacity-55"
             loading="eager"
           />
         )}

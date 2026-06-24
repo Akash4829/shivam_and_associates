@@ -34,7 +34,7 @@ function FocusAreasPage() {
         title={t('focus.title')}
         titleHighlight={t('focus.titleHighlight')}
         subtitle={t('focus.subtitle')}
-        backgroundImage={images.courtSteps}
+        backgroundImage={images.focusAreasHero}
         primaryTo="/contact"
         primaryLabel={t('cta.form')}
         secondaryTo="/case-studies"

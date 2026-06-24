@@ -3,17 +3,15 @@ const router = express.Router();
 const {
   createAppointment,
   getAllAppointments,
-  updateAppointmentStatus
+  updateAppointmentStatus,
 } = require('../controllers/appointmentController');
 const { authenticateToken } = require('../middleware/authMiddleware');
+const { adminMiddleware } = require('../middleware/adminMiddleware');
+const { formSubmissionLimiter } = require('../middleware/rateLimiters');
+const { appointmentValidators } = require('../middleware/validators');
 
-// POST /api/appointments - Create a new appointment
-router.post('/', createAppointment);
-
-// GET /api/appointments - Get all appointments (protected)
-router.get('/', authenticateToken, getAllAppointments);
-
-// PUT /api/appointments/:id - Update appointment status (protected)
-router.put('/:id', authenticateToken, updateAppointmentStatus);
+router.post('/', formSubmissionLimiter, appointmentValidators, createAppointment);
+router.get('/', authenticateToken, adminMiddleware, getAllAppointments);
+router.put('/:id', authenticateToken, adminMiddleware, updateAppointmentStatus);
 
 module.exports = router;

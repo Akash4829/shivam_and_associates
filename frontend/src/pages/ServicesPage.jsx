@@ -60,7 +60,7 @@ function ServicesPage() {
         title={t('services.title')}
         titleHighlight={t('services.titleHighlight')}
         subtitle={t('services.subtitle')}
-        backgroundImage={images.cityLegal}
+        backgroundImage={images.servicesHero}
         primaryTo="/contact"
         primaryLabel={t('nav.bookConsultation')}
         secondaryTo="/case-studies"

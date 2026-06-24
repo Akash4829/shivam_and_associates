@@ -1,17 +1,30 @@
 const express = require('express');
-const rateLimit = require('express-rate-limit');
 const router = express.Router();
-const { login } = require('../controllers/authController');
+const {
+  register,
+  login,
+  googleAuth,
+  logout,
+  me,
+  forgotPassword,
+  resetPassword,
+} = require('../controllers/authController');
+const { authenticateToken } = require('../middleware/authMiddleware');
+const { authLimiter } = require('../middleware/rateLimiters');
+const {
+  registerValidators,
+  loginValidators,
+  googleAuthValidators,
+  forgotPasswordValidators,
+  resetPasswordValidators,
+} = require('../middleware/validators');
 
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
-  message: { error: 'Too many login attempts. Please try again in 15 minutes.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// POST /api/auth/login - Admin login
-router.post('/login', loginLimiter, login);
+router.post('/register', authLimiter, registerValidators, register);
+router.post('/login', authLimiter, loginValidators, login);
+router.post('/google', authLimiter, googleAuthValidators, googleAuth);
+router.post('/logout', logout);
+router.post('/forgot-password', authLimiter, forgotPasswordValidators, forgotPassword);
+router.post('/reset-password', authLimiter, resetPasswordValidators, resetPassword);
+router.get('/me', authenticateToken, me);
 
 module.exports = router;

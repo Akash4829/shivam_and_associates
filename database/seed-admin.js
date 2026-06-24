@@ -1,7 +1,6 @@
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 
-// Database connection
 const pool = new Pool({
   user: process.env.DB_USER || 'postgres',
   host: process.env.DB_HOST || 'localhost',
@@ -12,27 +11,38 @@ const pool = new Pool({
 
 async function seedAdmin() {
   try {
-    // Hash the password
     const password = 'admin123';
-    const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
+    const passwordHash = await bcrypt.hash(password, 12);
 
-    // Insert admin user
-    const query = `
+    const adminQuery = `
       INSERT INTO admin_users (username, password_hash)
       VALUES ($1, $2)
       ON CONFLICT (username) DO NOTHING
       RETURNING *
     `;
-    
-    const result = await pool.query(query, ['admin', passwordHash]);
-    
-    if (result.rows.length > 0) {
-      console.log('Admin user created successfully:');
-      console.log('Username: admin');
-      console.log('Password: admin123');
+    const adminResult = await pool.query(adminQuery, ['admin', passwordHash]);
+
+    const userQuery = `
+      INSERT INTO users (full_name, email, password_hash, auth_provider, role, email_verified)
+      VALUES ($1, $2, $3, 'local', 'admin', TRUE)
+      ON CONFLICT (email) DO UPDATE SET
+        password_hash = EXCLUDED.password_hash,
+        role = 'admin',
+        updated_at = NOW()
+      RETURNING *
+    `;
+    await pool.query(userQuery, [
+      'Administrator',
+      'admin@shivammishraassociates.com',
+      passwordHash,
+    ]);
+
+    if (adminResult.rows.length > 0) {
+      console.log('Admin credentials seeded:');
+      console.log('  Panel username: admin / admin123');
+      console.log('  User email: admin@shivammishraassociates.com / admin123');
     } else {
-      console.log('Admin user already exists');
+      console.log('Admin user already exists (credentials refreshed in users table)');
     }
   } catch (error) {
     console.error('Error seeding admin user:', error);

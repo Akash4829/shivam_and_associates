@@ -55,7 +55,7 @@ function InternshipPage() {
               '@type': 'Place',
               address: {
                 '@type': 'PostalAddress',
-                addressLocality: 'Prayagraj',
+                addressLocality: 'Lucknow',
                 addressRegion: 'Uttar Pradesh',
                 addressCountry: 'IN',
               },
@@ -69,7 +69,7 @@ function InternshipPage() {
         title={t('internship.title')}
         titleHighlight={t('internship.titleHighlight')}
         subtitle={t('internship.subtitle')}
-        backgroundImage={images.lawLibrary}
+        backgroundImage={images.internshipHero}
         primaryHref="#apply"
         primaryLabel={t('internship.applyNow')}
         secondaryTo="/contact"

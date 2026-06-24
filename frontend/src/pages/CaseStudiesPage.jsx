@@ -82,7 +82,7 @@ function CaseStudiesPage() {
         title={t('cases.pageTitle')}
         titleHighlight={t('cases.pageHighlight')}
         subtitle={t('cases.pageSubtitle')}
-        backgroundImage={images.lawLibrary}
+        backgroundImage={images.caseStudiesHero}
         primaryTo="/contact"
         primaryLabel={t('cta.form')}
         secondaryTo="/services"

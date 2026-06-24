@@ -8,6 +8,7 @@ import {
   useTransform,
 } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { STATS } from '../../../constants/site';
 import { images } from '../../../lib/images';
 import { easePremium } from '../../../animations/variants';
 import Button from '../../ui/Button';
@@ -31,12 +32,11 @@ export function HeroSection() {
     glowY.set(((e.clientY - r.top) / r.height) * 100);
   };
 
-  const heroStats = [
-    { value: 8, suffix: '+', label: t('hero.statYears') },
-    { value: 500, suffix: '+', label: t('hero.statCases') },
-    { value: 98, suffix: '%', label: t('hero.statSatisfaction') },
-    { value: 24, suffix: 'h', label: t('hero.statResponse') },
-  ];
+  const heroStats = STATS.map((s) => ({
+    value: s.value,
+    suffix: s.suffix,
+    label: t(s.labelKey),
+  }));
 
   return (
     <section
@@ -46,7 +46,7 @@ export function HeroSection() {
       aria-label="Hero"
     >
       <motion.div style={{ y: bgY }} className="absolute inset-0" aria-hidden>
-        <img src={images.hero} alt="" className="h-full w-full object-cover opacity-40" loading="eager" />
+        <img src={images.hero} alt="" className="h-full w-full object-cover object-top opacity-55" loading="eager" />
         <motion.div className="absolute inset-0 bg-hero-luxury" />
         <motion.div className="absolute inset-0" style={{ background: glow }} />
         <motion.div className="absolute inset-0 bg-noise opacity-[0.04]" />
@@ -71,7 +71,7 @@ export function HeroSection() {
           </motion.div>
           <motion.div className="mt-10 flex flex-wrap gap-4">
             <MagneticButton to="/contact">{t('hero.ctaPrimary')}</MagneticButton>
-            <Button to="/services" variant="secondary">
+            <Button to="/focus-areas" variant="secondary">
               {t('hero.ctaSecondary')}
             </Button>
           </motion.div>

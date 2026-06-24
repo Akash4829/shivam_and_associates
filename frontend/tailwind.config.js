@@ -60,7 +60,7 @@ module.exports = {
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'hero-luxury':
-          'linear-gradient(165deg, rgba(11,15,25,0.92) 0%, rgba(16,24,40,0.88) 45%, rgba(11,15,25,0.95) 100%)',
+          'linear-gradient(165deg, rgba(11,15,25,0.72) 0%, rgba(16,24,40,0.62) 45%, rgba(11,15,25,0.78) 100%)',
         'gradient-accent': 'linear-gradient(135deg, #C9A227 0%, #E8D48A 50%, #C9A227 100%)',
         'surface-gradient': 'linear-gradient(180deg, #0B0F19 0%, #101828 100%)',
       },
