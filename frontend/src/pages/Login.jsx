@@ -59,7 +59,11 @@ export default function Login() {
       const data = await googleLogin(response.credential);
       finishAuth(data);
     } catch (err) {
-      const msg = err.response?.data?.error || t('auth.googleFailed');
+      let msg = err.response?.data?.error || t('auth.googleFailed');
+      if (err.response?.status === 405) {
+        msg =
+          'API URL misconfigured: set REACT_APP_API_URL to your Railway backend URL on Vercel (not the Vercel site URL).';
+      }
       setError(msg);
       toast.error(msg);
     } finally {

@@ -8,12 +8,24 @@ import axios from 'axios';
  *   AuthContext can react without each call site having to handle it.
  */
 function normalizeBaseUrl(url) {
-  const raw = (url || 'http://localhost:5000').replace(/\/+$/, '');
+  const raw = (url || '').replace(/\/+$/, '');
   return raw.replace(/\/api$/, '');
 }
 
+function resolveBaseUrl() {
+  const configured = normalizeBaseUrl(process.env.REACT_APP_API_URL);
+  if (configured) return configured;
+
+  // Production fallback: same-origin /api via Vercel rewrite (see frontend/vercel.json)
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return window.location.origin;
+  }
+
+  return 'http://localhost:5000';
+}
+
 const api = axios.create({
-  baseURL: normalizeBaseUrl(process.env.REACT_APP_API_URL),
+  baseURL: resolveBaseUrl(),
   withCredentials: true,
   timeout: 30000,
 });

@@ -61,7 +61,7 @@ function MainLayout() {
         {t('nav.skipToContent')}
       </a>
       <ScrollProgress />
-      {process.env.REACT_APP_GOOGLE_CLIENT_ID ? <GoogleOneTap /> : null}
+      {process.env.REACT_APP_GOOGLE_ONE_TAP === 'true' ? <GoogleOneTap /> : null}
       <Navbar isScrolled={isScrolled} />
       <main id="main-content" className="flex-1 w-full pt-16 md:pt-[4.25rem]" tabIndex={-1}>
         <AnimatedOutlet />

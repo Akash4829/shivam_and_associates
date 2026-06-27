@@ -27,7 +27,7 @@ export function OAuthSignInPanel({
   const registerPath = `/register?redirect=${encodeURIComponent(redirectPath)}`;
 
   const handleGoogleError = () => {
-    const message = t('auth.googleFailed');
+    const message = t('auth.googlePopupBlocked');
     onAppleError?.(message);
     toast.error(message);
   };
@@ -48,11 +48,16 @@ export function OAuthSignInPanel({
       {!showEmail && (
         <div className="space-y-3">
           {hasGoogle && (
-            <GoogleSignInButton
-              onSuccess={onGoogleSuccess}
-              onError={handleGoogleError}
-              disabled={loading}
-            />
+            <>
+              <GoogleSignInButton
+                onSuccess={onGoogleSuccess}
+                onError={handleGoogleError}
+                disabled={loading}
+              />
+              <p className="text-xs text-center text-slate-400 leading-relaxed px-2">
+                {t('auth.googlePopupHint')}
+              </p>
+            </>
           )}
 
           {hasApple && (

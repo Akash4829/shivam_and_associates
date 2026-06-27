@@ -23,13 +23,32 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
 
-const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
-const allowedOrigins = isProduction
-  ? [clientUrl].filter(Boolean)
-  : (process.env.CLIENT_URLS || process.env.CLIENT_URL || 'http://localhost:3000')
-      .split(',')
-      .map((origin) => origin.trim())
-      .filter(Boolean);
+const isProduction = process.env.NODE_ENV === 'production';
+
+function getAllowedOrigins() {
+  const fromList = (process.env.CLIENT_URLS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  const primary = (process.env.CLIENT_URL || 'http://localhost:3000').trim();
+  return [...new Set([primary, ...fromList].filter(Boolean))];
+}
+
+const allowedOrigins = getAllowedOrigins();
+
+function isOriginAllowed(origin) {
+  if (!origin) return true;
+  if (allowedOrigins.includes(origin)) return true;
+  if (process.env.ALLOW_VERCEL_PREVIEWS === 'true') {
+    try {
+      const { hostname } = new URL(origin);
+      if (hostname.endsWith('.vercel.app')) return true;
+    } catch {
+      /* ignore malformed origin */
+    }
+  }
+  return false;
+}
 
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
@@ -37,13 +56,16 @@ app.disable('x-powered-by');
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
+      if (isOriginAllowed(origin)) return callback(null, true);
+      if (!isProduction) {
+        console.warn(`CORS blocked origin: ${origin}. Allowed: ${allowedOrigins.join(', ')}`);
+      }
       return callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 204,
   })
 );
 
