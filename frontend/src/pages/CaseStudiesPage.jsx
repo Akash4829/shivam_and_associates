@@ -15,6 +15,11 @@ import { SITE } from '../constants/site';
 
 const PAGE_SIZE = 10;
 
+function isPdfUrl(url) {
+  if (!url) return false;
+  return /\.pdf($|\?|#)/i.test(url);
+}
+
 function CaseStudiesPage() {
   const { t, i18n } = useTranslation();
   const { theme } = useThemeMode();
@@ -79,8 +84,8 @@ function CaseStudiesPage() {
 
       <PageHero
         kicker={t('cases.kicker')}
-        title={t('cases.pageTitle')}
-        titleHighlight={t('cases.pageHighlight')}
+        title={t('cases.title')}
+        titleHighlight=""
         subtitle={t('cases.pageSubtitle')}
         backgroundImage={images.caseStudiesHero}
         primaryTo="/contact"
@@ -93,8 +98,8 @@ function CaseStudiesPage() {
         <div className="container-premium">
           <SectionHeader
             kicker={t('cases.kicker')}
-            title={t('cases.pageTitle')}
-            subtitle={t('cases.pageSubtitle')}
+            title={t('cases.title')}
+            subtitle={t('cases.subtitle')}
           />
 
           {isLoading ? (
@@ -130,7 +135,7 @@ function CaseStudiesPage() {
                 <AnimatePresence initial={false}>
                   {caseStudies.map((cs) => (
                     <GlassCard key={cs.id} layout variants={fadeUp} className="overflow-hidden h-full !p-0">
-                      {cs.image_url && (
+                      {cs.image_url && !isPdfUrl(cs.image_url) && (
                         <div className="h-44 w-full overflow-hidden">
                           <img
                             src={cs.image_url}
@@ -209,6 +214,22 @@ function CaseStudiesPage() {
                         >
                           {expandedStudy === cs.id ? t('cases.closeFull') : t('cases.readFull')}
                         </Button>
+                        {cs.image_url && isPdfUrl(cs.image_url) && (
+                          <Button
+                            href={cs.image_url}
+                            variant="primary"
+                            className="!w-full mt-3 !py-3"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {t('cases.downloadOrder')}
+                          </Button>
+                        )}
+                        {cs.image_url && !isPdfUrl(cs.image_url) && (
+                          <p className={`mt-3 text-xs text-center ${isLight ? 'text-muted' : 'text-slate-500'}`}>
+                            {t('cases.documentAvailable')}
+                          </p>
+                        )}
                       </div>
                     </GlassCard>
                   ))}

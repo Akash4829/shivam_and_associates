@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 
 function PageLoader() {
@@ -13,13 +14,21 @@ function PageLoader() {
 export function ProtectedRoute({ children, requireAdmin = false }) {
   const { user, loading, isAdmin } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation();
 
   if (loading) {
     return <PageLoader />;
   }
 
   if (!user) {
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+    const redirect = encodeURIComponent(location.pathname + location.search);
+    return (
+      <Navigate
+        to={`/login?redirect=${redirect}`}
+        state={{ from: location.pathname, message: t('auth.signInRequiredGeneric') }}
+        replace
+      />
+    );
   }
 
   if (requireAdmin && !isAdmin) {

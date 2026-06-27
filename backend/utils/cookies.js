@@ -1,4 +1,4 @@
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '30d';
 
 function parseExpiryToMs(expiry) {
   const match = String(expiry).match(/^(\d+)([dhms])$/);

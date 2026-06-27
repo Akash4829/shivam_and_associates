@@ -37,7 +37,7 @@ api.interceptors.response.use(
     const status = error.response?.status;
     const url = error.config?.url || '';
 
-    if ((status === 401 || status === 403) && !url.endsWith('/api/auth/me') && !url.endsWith('/api/auth/login') && !url.endsWith('/api/auth/register') && !url.endsWith('/api/auth/google')) {
+    if ((status === 401 || status === 403) && !url.endsWith('/api/auth/me') && !url.endsWith('/api/auth/login') && !url.endsWith('/api/auth/register') && !url.endsWith('/api/auth/google') && !url.endsWith('/api/auth/apple')) {
       if (!isHandlingExpiry && typeof window !== 'undefined') {
         isHandlingExpiry = true;
         window.localStorage.removeItem('token');

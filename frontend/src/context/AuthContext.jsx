@@ -91,6 +91,12 @@ export function AuthProvider({ children }) {
     return response.data;
   }, [persistAuth]);
 
+  const appleLogin = useCallback(async (payload) => {
+    const response = await api.post('/api/auth/apple', payload);
+    persistAuth(response.data);
+    return response.data;
+  }, [persistAuth]);
+
   const logout = useCallback(async () => {
     try {
       await api.post('/api/auth/logout');
@@ -115,10 +121,11 @@ export function AuthProvider({ children }) {
       login,
       register,
       googleLogin,
+      appleLogin,
       logout,
       refreshUser: fetchUser,
     }),
-    [user, loading, login, register, googleLogin, logout, fetchUser]
+    [user, loading, login, register, googleLogin, appleLogin, logout, fetchUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -10,7 +10,8 @@ import Icon from '../components/ui/Icons';
 import Modal from '../components/ui/Modal';
 import ConsultationForm from '../components/forms/ConsultationForm';
 import { images } from '../lib/images';
-import { SITE, buildWhatsAppUrl } from '../constants/site';
+import { SITE } from '../constants/site';
+import SocialLinks from '../components/ui/SocialLinks';
 import { useThemeMode } from '../context/ThemeContext';
 import { fadeUp, staggerContainer } from '../animations/variants';
 import { events } from '../services/analytics';
@@ -51,8 +52,6 @@ function ContactPage() {
   const isLight = theme === 'light';
   const [bookingOpen, setBookingOpen] = useState(false);
 
-  const whatsappUrl = buildWhatsAppUrl(t);
-
   const localBusiness = {
     '@context': 'https://schema.org',
     '@type': 'LegalService',
@@ -68,7 +67,7 @@ function ContactPage() {
       postalCode: '211001',
       addressCountry: 'IN',
     },
-    openingHours: 'Mo-Sa 10:00-19:00',
+    openingHours: 'Mo-Su 09:00-21:30',
     areaServed: 'IN',
   };
 
@@ -118,14 +117,6 @@ function ContactPage() {
 
               <div className="space-y-3">
                 <ChannelCard
-                  icon="device"
-                  title={t('contact.whatsapp')}
-                  value={SITE.phoneDisplay}
-                  href={whatsappUrl}
-                  label={t('common.getStarted')}
-                  onClick={() => events.ctaWhatsapp()}
-                />
-                <ChannelCard
                   icon="user"
                   title={t('contact.call')}
                   value={SITE.phoneDisplay}
@@ -142,20 +133,25 @@ function ContactPage() {
                 />
               </div>
 
-              <GlassCard className="p-6 space-y-3">
-                <p className={`text-sm font-semibold uppercase tracking-wider text-accent`}>
+              <GlassCard className="overflow-hidden !p-0">
+                <img
+                  src={images.advocateExterior}
+                  alt=""
+                  className="w-full h-36 object-cover"
+                  loading="lazy"
+                />
+                <div className="p-6 space-y-3">
+                <p className={`text-sm font-medium ${isLight ? 'text-ink' : 'text-off-white'}`}>
                   {t('contact.office')}
                 </p>
                 <p className={`text-sm ${isLight ? 'text-muted' : 'text-slate-300'}`}>{SITE.address}</p>
-                <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-sm ${isLight ? 'text-muted' : 'text-slate-400'}`}>
-                  <div>
-                    <p className="text-xs uppercase tracking-wider text-accent/80">{t('contact.hours')}</p>
-                    <p className="mt-1">{SITE.hours}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-wider text-accent/80">{t('contact.response')}</p>
-                    <p className="mt-1">{SITE.responseTime}</p>
-                  </div>
+                <p className={`text-xs ${isLight ? 'text-muted' : 'text-slate-500'}`}>{SITE.hours}</p>
+                <div className={`grid grid-cols-1 gap-2 pt-1 text-sm ${isLight ? 'text-muted' : 'text-slate-400'}`}>
+                  <p>{t('contact.response')}: {SITE.responseTime}</p>
+                </div>
+                <div className="pt-4 border-t border-accent/10">
+                  <SocialLinks />
+                </div>
                 </div>
               </GlassCard>
 
@@ -238,11 +234,17 @@ function ContactPage() {
           }`}>
             <p>{t('contact.calendlyNote')}</p>
             <div className="mt-4 flex flex-wrap justify-center gap-3">
-              <Button href={whatsappUrl} variant="whatsapp">
-                {t('cta.whatsapp')}
-              </Button>
               <Button href={`tel:${SITE.phone}`} variant="secondary">
                 {t('cta.call')}
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setBookingOpen(false);
+                  document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                {t('nav.bookConsultation')}
               </Button>
             </div>
           </div>

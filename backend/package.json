@@ -9,6 +9,7 @@
     "db:init": "node scripts/initDb.js"
   },
   "dependencies": {
+    "apple-signin-auth": "^2.0.0",
     "bcrypt": "^6.0.0",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",

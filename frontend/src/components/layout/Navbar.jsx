@@ -274,7 +274,7 @@ export function Navbar({ isScrolled }) {
                 whileHover={reduceMotion ? undefined : { scale: 1.05 }}
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent to-amber-600 shadow-glow-accent ring-2 ring-white/10"
               >
-                <span className="text-primary font-bold text-sm">SM</span>
+                <span className="text-primary font-bold text-sm">{SITE.logoInitials}</span>
               </motion.div>
               <span className="font-display font-semibold text-sm sm:text-base tracking-tight truncate">
                 {SITE.shortName}

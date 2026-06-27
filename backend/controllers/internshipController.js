@@ -9,29 +9,29 @@ const UPLOAD_DIR = path.join(__dirname, '..', 'uploads', 'resumes');
 const ALLOWED_STATUSES = ['Pending', 'Shortlisted', 'Approved', 'Rejected'];
 
 const STATUS_EMAIL_SUBJECTS = {
-  Shortlisted: 'Internship Application — Shortlisted | Shivam Mishra & Associates',
-  Approved: 'Internship Application Approved | Shivam Mishra & Associates',
-  Rejected: 'Internship Application Update | Shivam Mishra & Associates',
+  Shortlisted: 'Internship Application — Shortlisted | Mishra Juris Chamber',
+  Approved: 'Internship Application Approved | Mishra Juris Chamber',
+  Rejected: 'Internship Application Update | Mishra Juris Chamber',
 };
 
 const STATUS_EMAIL_BODIES = {
   Shortlisted: (name) => `
     <p>Dear ${escapeHtml(name)},</p>
-    <p>Thank you for applying for an internship at <strong>Shivam Mishra &amp; Associates</strong>.</p>
+    <p>Thank you for applying for an internship at <strong>Mishra Juris Chamber</strong>.</p>
     <p>We are pleased to inform you that your application has been <strong>shortlisted</strong> for further review. Our team may contact you shortly regarding the next steps.</p>
-    <p>Regards,<br>Shivam Mishra &amp; Associates</p>
+    <p>Regards,<br>Mishra Juris Chamber</p>
   `,
   Approved: (name) => `
     <p>Dear ${escapeHtml(name)},</p>
-    <p>Congratulations! Your internship application with <strong>Shivam Mishra &amp; Associates</strong> has been <strong>approved</strong>.</p>
+    <p>Congratulations! Your internship application with <strong>Mishra Juris Chamber</strong> has been <strong>approved</strong>.</p>
     <p>Our office will reach out to you with onboarding details, schedule, and any documents required.</p>
-    <p>Regards,<br>Shivam Mishra &amp; Associates</p>
+    <p>Regards,<br>Mishra Juris Chamber</p>
   `,
   Rejected: (name) => `
     <p>Dear ${escapeHtml(name)},</p>
-    <p>Thank you for your interest in interning with <strong>Shivam Mishra &amp; Associates</strong>.</p>
+    <p>Thank you for your interest in interning with <strong>Mishra Juris Chamber</strong>.</p>
     <p>After careful review, we are unable to proceed with your application at this time. We encourage you to apply again in a future intake cycle.</p>
-    <p>Regards,<br>Shivam Mishra &amp; Associates</p>
+    <p>Regards,<br>Mishra Juris Chamber</p>
   `,
 };
 
@@ -102,7 +102,7 @@ const createInternshipApplication = async (req, res) => {
 
     sendMail({
       to: process.env.FIRM_EMAIL || 'advshivammishra2124@gmail.com',
-      subject: 'New Internship Application — Shivam Mishra & Associates',
+      subject: 'New Internship Application — Mishra Juris Chamber',
       html: `
         <h2>New Internship Application</h2>
         <p><strong>Name:</strong> ${escapeHtml(applicant_name)}</p>

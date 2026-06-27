@@ -33,7 +33,7 @@ const createAppointment = async (req, res) => {
 
     sendMail({
       to: process.env.FIRM_EMAIL || 'advshivammishra2124@gmail.com',
-      subject: 'New Appointment Request — Shivam Mishra & Associates',
+      subject: 'New Appointment Request — Mishra Juris Chamber',
       html: `
         <h2>New Appointment Request</h2>
         <p><strong>Client Name:</strong> ${escapeHtml(client_name)}</p>

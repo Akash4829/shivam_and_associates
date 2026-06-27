@@ -17,6 +17,7 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash TEXT,
     google_id VARCHAR(255) UNIQUE,
+    apple_id VARCHAR(255) UNIQUE,
     avatar_url TEXT,
     auth_provider VARCHAR(50) NOT NULL DEFAULT 'local',
     role VARCHAR(50) NOT NULL DEFAULT 'user',
@@ -25,7 +26,7 @@ CREATE TABLE users (
     reset_token_expires TIMESTAMP,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
-    CONSTRAINT users_auth_provider_check CHECK (auth_provider IN ('local', 'google')),
+    CONSTRAINT users_auth_provider_check CHECK (auth_provider IN ('local', 'google', 'apple')),
     CONSTRAINT users_role_check CHECK (role IN ('user', 'admin'))
 );
 

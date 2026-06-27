@@ -5,9 +5,10 @@ const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
 const { JWT_SECRET } = require('../config/jwt');
 const { TOKEN_COOKIE_NAME, getCookieOptions, getClearCookieOptions } = require('../utils/cookies');
+const appleSignin = require('apple-signin-auth');
 const { sendMail } = require('../utils/mail');
 
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '30d';
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 function sanitizeUser(row) {
@@ -163,6 +164,72 @@ async function googleAuth(req, res) {
   }
 }
 
+async function appleAuth(req, res) {
+  try {
+    const { id_token: idToken, user: appleUser } = req.body;
+
+    if (!process.env.APPLE_CLIENT_ID) {
+      return res.status(503).json({ error: 'Apple Sign-In is not configured on the server' });
+    }
+
+    const payload = await appleSignin.verifyIdToken(idToken, {
+      audience: process.env.APPLE_CLIENT_ID,
+      ignoreExpiration: false,
+    });
+
+    const sub = payload.sub;
+    const emailFromToken = payload.email;
+    const emailFromClient = appleUser?.email;
+    const email = (emailFromToken || emailFromClient || '').toLowerCase();
+
+    if (!email) {
+      return res.status(400).json({
+        error: 'Apple did not provide an email. Remove this app from Apple ID settings and try again.',
+      });
+    }
+
+    const firstName = appleUser?.name?.firstName || '';
+    const lastName = appleUser?.name?.lastName || '';
+    const fullName = `${firstName} ${lastName}`.trim() || email.split('@')[0];
+
+    let result = await pool.query('SELECT * FROM users WHERE apple_id = $1 OR email = $2', [sub, email]);
+
+    let user;
+    if (result.rows.length === 0) {
+      const insert = await pool.query(
+        `INSERT INTO users (full_name, email, apple_id, auth_provider, email_verified)
+         VALUES ($1, $2, $3, 'apple', TRUE)
+         RETURNING *`,
+        [fullName, email, sub]
+      );
+      user = insert.rows[0];
+    } else {
+      user = result.rows[0];
+      await pool.query(
+        `UPDATE users SET apple_id = $1, auth_provider = 'apple', email_verified = TRUE,
+         full_name = CASE WHEN full_name IS NULL OR full_name = '' THEN $2 ELSE full_name END,
+         updated_at = NOW()
+         WHERE id = $3`,
+        [sub, fullName, user.id]
+      );
+      const updated = await pool.query('SELECT * FROM users WHERE id = $1', [user.id]);
+      user = updated.rows[0];
+    }
+
+    const token = signToken(user);
+    setAuthCookie(res, token);
+
+    res.status(200).json({
+      message: 'Apple authentication successful',
+      user: sanitizeUser(user),
+      token,
+    });
+  } catch (error) {
+    console.error('Apple auth error:', error);
+    res.status(401).json({ error: 'Invalid or expired Apple token' });
+  }
+}
+
 async function logout(req, res) {
   res.clearCookie(TOKEN_COOKIE_NAME, getClearCookieOptions());
   res.status(200).json({ message: 'Logged out successfully' });
@@ -210,7 +277,7 @@ async function forgotPassword(req, res) {
 
     await sendMail({
       to: user.email,
-      subject: 'Password Reset — Shivam Mishra & Associates',
+      subject: 'Password Reset — Mishra Juris Chamber',
       html: `
         <h2>Password Reset Request</h2>
         <p>Hello ${user.full_name},</p>
@@ -264,6 +331,7 @@ module.exports = {
   register,
   login,
   googleAuth,
+  appleAuth,
   logout,
   me,
   forgotPassword,

@@ -7,6 +7,7 @@ import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import FloatingActions from '../components/layout/FloatingActions';
 import ScrollProgress from '../components/layout/ScrollProgress';
+import GoogleOneTap from '../components/auth/GoogleOneTap';
 import { pageTransition } from '../animations/variants';
 
 function AnimatedOutlet() {
@@ -60,6 +61,7 @@ function MainLayout() {
         {t('nav.skipToContent')}
       </a>
       <ScrollProgress />
+      <GoogleOneTap />
       <Navbar isScrolled={isScrolled} />
       <main id="main-content" className="flex-1 w-full pt-16 md:pt-[4.25rem]" tabIndex={-1}>
         <AnimatedOutlet />

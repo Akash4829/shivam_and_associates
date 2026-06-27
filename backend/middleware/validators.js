@@ -107,7 +107,11 @@ const googleAuthValidators = [
   handleValidationErrors,
 ];
 
-const forgotPasswordValidators = [
+const appleAuthValidators = [
+  body('id_token').notEmpty().withMessage('Apple ID token is required'),
+  handleValidationErrors,
+];
+
   body('email').trim().isEmail().withMessage('A valid email is required'),
   handleValidationErrors,
 ];
@@ -125,6 +129,7 @@ module.exports = {
   registerValidators,
   loginValidators,
   googleAuthValidators,
+  appleAuthValidators,
   forgotPasswordValidators,
   resetPasswordValidators,
   handleValidationErrors,

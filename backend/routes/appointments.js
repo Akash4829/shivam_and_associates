@@ -10,7 +10,7 @@ const { adminMiddleware } = require('../middleware/adminMiddleware');
 const { formSubmissionLimiter } = require('../middleware/rateLimiters');
 const { appointmentValidators } = require('../middleware/validators');
 
-router.post('/', formSubmissionLimiter, appointmentValidators, createAppointment);
+router.post('/', authenticateToken, formSubmissionLimiter, appointmentValidators, createAppointment);
 router.get('/', authenticateToken, adminMiddleware, getAllAppointments);
 router.put('/:id', authenticateToken, adminMiddleware, updateAppointmentStatus);
 

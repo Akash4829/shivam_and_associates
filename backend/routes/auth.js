@@ -4,6 +4,7 @@ const {
   register,
   login,
   googleAuth,
+  appleAuth,
   logout,
   me,
   forgotPassword,
@@ -15,6 +16,7 @@ const {
   registerValidators,
   loginValidators,
   googleAuthValidators,
+  appleAuthValidators,
   forgotPasswordValidators,
   resetPasswordValidators,
 } = require('../middleware/validators');
@@ -22,6 +24,7 @@ const {
 router.post('/register', authLimiter, registerValidators, register);
 router.post('/login', authLimiter, loginValidators, login);
 router.post('/google', authLimiter, googleAuthValidators, googleAuth);
+router.post('/apple', authLimiter, appleAuthValidators, appleAuth);
 router.post('/logout', logout);
 router.post('/forgot-password', authLimiter, forgotPasswordValidators, forgotPassword);
 router.post('/reset-password', authLimiter, resetPasswordValidators, resetPassword);

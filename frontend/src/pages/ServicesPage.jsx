@@ -80,25 +80,19 @@ function ServicesPage() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.05 }}
-            className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[minmax(200px,auto)]"
+            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
           >
             {serviceCatalog.map((s) => (
               <motion.div key={s.id} variants={fadeUp} className={s.span}>
                 <BentoCard
                   icon={s.icon}
+                  image={images[s.imageKey]}
                   title={t(s.titleKey)}
                   description={t(s.descKey)}
                   ctaLabel={t('practice.learnMore')}
                   active={activeId === s.id}
                   onClick={() => setActiveId(s.id)}
-                >
-                  <button
-                    type="button"
-                    className="absolute inset-0 w-full h-full opacity-0"
-                    onClick={() => setActiveId(s.id)}
-                    aria-label={`Focus ${t(s.titleKey)}`}
-                  />
-                </BentoCard>
+                />
               </motion.div>
             ))}
           </motion.div>
@@ -142,6 +136,15 @@ function ServicesPage() {
               transition={{ duration: 0.45 }}
               className="space-y-6"
             >
+              <div className="relative h-48 sm:h-56 rounded-2xl overflow-hidden ring-1 ring-white/10">
+                <img
+                  src={images[active.imageKey]}
+                  alt=""
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" aria-hidden />
+              </div>
               <p className="section-kicker">{t('practice.kicker')}</p>
               <h2 className={`font-heading text-display-md ${isLight ? 'text-ink' : 'text-off-white'}`}>
                 {t(active.titleKey)}
@@ -161,17 +164,12 @@ function ServicesPage() {
                     <BentoCard
                       key={r.id}
                       icon={r.icon}
+                      image={images[r.imageKey]}
                       title={t(r.titleKey)}
                       description={t(r.descKey)}
                       ctaLabel={t('practice.learnMore')}
-                    >
-                      <button
-                        type="button"
-                        className="absolute inset-0 w-full h-full opacity-0"
-                        onClick={() => setActiveId(r.id)}
-                        aria-label={`Focus ${t(r.titleKey)}`}
-                      />
-                    </BentoCard>
+                      onClick={() => setActiveId(r.id)}
+                    />
                   );
                 })}
               </motion.div>

@@ -24,7 +24,7 @@ async function sendMail({ to, subject, html, attachments }) {
   }
   const transport = getTransporter();
   const message = {
-    from: process.env.SMTP_FROM || '"Shivam Mishra & Associates" <noreply@lawfirm.com>',
+    from: process.env.SMTP_FROM || '"Mishra Juris Chamber" <noreply@lawfirm.com>',
     to,
     subject,
     html,

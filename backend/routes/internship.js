@@ -14,6 +14,7 @@ const { internshipValidators, internshipUpdateValidators } = require('../middlew
 
 router.post(
   '/',
+  authenticateToken,
   formSubmissionLimiter,
   uploadResume.single('resume'),
   internshipValidators,

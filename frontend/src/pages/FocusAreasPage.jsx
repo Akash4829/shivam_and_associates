@@ -5,9 +5,7 @@ import { motion } from 'framer-motion';
 import PageHero from '../components/sections/PageHero';
 import FAQBlock from '../components/sections/FAQBlock';
 import SectionHeader from '../components/ui/SectionHeader';
-import GlassCard from '../components/ui/GlassCard';
 import BentoCard from '../components/ui/BentoCard';
-import Icon from '../components/ui/Icons';
 import { images } from '../lib/images';
 import { useThemeMode } from '../context/ThemeContext';
 import { fadeUp, staggerContainer } from '../animations/variants';
@@ -49,12 +47,13 @@ function FocusAreasPage() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[minmax(200px,auto)]"
+            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
           >
             {practiceAreas.map((area) => (
               <motion.div key={area.id} variants={fadeUp} className={area.span}>
                 <BentoCard
                   icon={area.icon}
+                  image={images[area.imageKey]}
                   title={t(area.titleKey)}
                   description={t(area.descKey)}
                   to={area.to}
@@ -80,11 +79,18 @@ function FocusAreasPage() {
               }`}
             >
               <div className="lg:col-span-5">
-                <GlassCard className="aspect-[5/4] flex items-center justify-center bg-gradient-to-br from-accent/15 via-transparent to-accent/5">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-accent/20 text-accent">
-                    <Icon name={f.icon} className="w-9 h-9" />
-                  </div>
-                </GlassCard>
+                <div
+                  className={`overflow-hidden rounded-2xl aspect-[5/4] ${
+                    isLight ? 'border border-navy/10' : 'border border-white/10'
+                  }`}
+                >
+                  <img
+                    src={images[f.imageKey]}
+                    alt=""
+                    className="h-full w-full object-cover object-center"
+                    loading="lazy"
+                  />
+                </div>
               </div>
               <div className="lg:col-span-7 space-y-5">
                 <p className="section-kicker">{t(f.titleKey)}</p>

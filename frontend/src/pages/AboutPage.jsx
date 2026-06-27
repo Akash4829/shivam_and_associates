@@ -74,7 +74,7 @@ function AboutPage() {
               <div className="relative mx-auto max-w-md lg:max-w-none">
                 <div className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-accent/25 via-transparent to-accent/10 blur-sm" aria-hidden />
                 <img
-                  src={images.advocateCourtCorridor}
+                  src={images.advocatePortrait}
                   alt={t('about.advocateAlt')}
                   className="relative w-full rounded-2xl object-cover object-top aspect-[3/4] shadow-depth-lg ring-1 ring-white/10"
                   loading="eager"

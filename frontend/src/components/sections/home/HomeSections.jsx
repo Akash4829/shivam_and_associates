@@ -3,7 +3,15 @@ import { Link } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { TRUST_METRICS } from '../../../constants/site';
-import { practiceAreas, whyChooseItems, testimonials } from '../../../data/practiceAreas';
+import {
+  practiceAreas,
+  whyChooseItems,
+  testimonials,
+  journeySteps,
+  caseResults,
+  faqItems,
+} from '../../../data/practiceAreas';
+import { images } from '../../../lib/images';
 import { fadeUp, staggerContainer, easePremium } from '../../../animations/variants';
 import SectionHeader from '../../ui/SectionHeader';
 import GlassCard from '../../ui/GlassCard';
@@ -126,12 +134,13 @@ export function PracticeAreasBento() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[minmax(180px,auto)]"
+          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
         >
           {practiceAreas.map((area) => (
             <motion.div key={area.id} variants={fadeUp} className={area.span}>
               <BentoCard
                 icon={area.icon}
+                image={images[area.imageKey]}
                 title={t(area.titleKey)}
                 description={t(area.descKey)}
                 to={area.to}
@@ -297,7 +306,6 @@ export function FinalCTA() {
   const { t } = useTranslation();
   const { theme } = useThemeMode();
   const isLight = theme === 'light';
-  const whatsappUrl = `https://wa.me/${SITE.whatsapp}`;
 
   return (
     <section className={`section-padding ${isLight ? 'bg-off-white' : 'bg-primary'}`}>
@@ -309,7 +317,6 @@ export function FinalCTA() {
             <h2 className={`font-heading text-display-md mt-3 ${isLight ? 'text-ink' : 'text-off-white'}`}>{t('cta.title')}</h2>
             <p className={`mt-4 text-lg ${isLight ? 'text-muted' : 'text-slate-400'}`}>{t('cta.subtitle')}</p>
             <motion.div className="mt-10 flex flex-wrap justify-center gap-4">
-              <Button href={whatsappUrl} variant="whatsapp">{t('cta.whatsapp')}</Button>
               <Button href={`tel:${SITE.phone}`} variant="secondary">{t('cta.call')}</Button>
               <Button to="/contact">{t('cta.form')}</Button>
             </motion.div>

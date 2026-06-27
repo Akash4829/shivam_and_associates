@@ -58,7 +58,7 @@ const orgSchema = {
   },
   areaServed: 'IN',
   priceRange: '$$',
-  openingHours: 'Mo-Sa 10:00-19:00',
+  openingHours: 'Mo-Su 09:00-21:30',
 };
 
 const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
@@ -67,8 +67,8 @@ function AppRoutes() {
   return (
     <>
       <Helmet
-        defaultTitle="Shivam Mishra & Associates | Legal Services in India"
-        titleTemplate="%s | Shivam Mishra & Associates"
+        defaultTitle="Mishra Juris Chamber | Trusted Legal Counsel in India"
+        titleTemplate="%s | Mishra Juris Chamber"
       >
         <meta name="theme-color" content="#0B0F19" />
         <meta property="og:site_name" content={SITE.name} />
@@ -96,8 +96,26 @@ function AppRoutes() {
           <Route path="/testimonials" element={<Suspense fallback={<PageSkeleton />}><TestimonialsPage /></Suspense>} />
           <Route path="/case-studies" element={<Suspense fallback={<PageSkeleton />}><CaseStudiesPage /></Suspense>} />
           <Route path="/about" element={<Suspense fallback={<PageSkeleton />}><AboutPage /></Suspense>} />
-          <Route path="/contact" element={<Suspense fallback={<PageSkeleton />}><ContactPage /></Suspense>} />
-          <Route path="/internship" element={<Suspense fallback={<PageSkeleton />}><InternshipPage /></Suspense>} />
+          <Route
+            path="/contact"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<PageSkeleton />}>
+                  <ContactPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/internship"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<PageSkeleton />}>
+                  <InternshipPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
           <Route path="/privacy-policy" element={<Suspense fallback={<PageSkeleton />}><PrivacyPolicy /></Suspense>} />
           <Route path="/terms-of-use" element={<Suspense fallback={<PageSkeleton />}><TermsOfUse /></Suspense>} />
           <Route path="/disclaimer" element={<Suspense fallback={<PageSkeleton />}><Disclaimer /></Suspense>} />
