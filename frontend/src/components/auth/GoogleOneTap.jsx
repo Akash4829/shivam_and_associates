@@ -7,11 +7,10 @@ import { useAuth } from '../../context/AuthContext';
 
 const AUTH_PATHS = ['/login', '/register', '/forgot-password', '/reset-password', '/admin'];
 
-export function GoogleOneTap() {
+function GoogleOneTapInner() {
   const { t } = useTranslation();
   const location = useLocation();
   const { user, loading, googleLogin } = useAuth();
-  const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
   const handleSuccess = useCallback(
     async (response) => {
@@ -26,7 +25,6 @@ export function GoogleOneTap() {
   );
 
   const disabled =
-    !clientId ||
     loading ||
     Boolean(user) ||
     AUTH_PATHS.some((p) => location.pathname.startsWith(p));
@@ -40,6 +38,13 @@ export function GoogleOneTap() {
   });
 
   return null;
+}
+
+export function GoogleOneTap() {
+  if (!process.env.REACT_APP_GOOGLE_CLIENT_ID) {
+    return null;
+  }
+  return <GoogleOneTapInner />;
 }
 
 export default GoogleOneTap;

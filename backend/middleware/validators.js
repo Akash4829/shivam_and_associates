@@ -112,6 +112,7 @@ const appleAuthValidators = [
   handleValidationErrors,
 ];
 
+const forgotPasswordValidators = [
   body('email').trim().isEmail().withMessage('A valid email is required'),
   handleValidationErrors,
 ];
