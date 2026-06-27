@@ -507,6 +507,7 @@
     "googleFailed": "Google sign-in failed. Please try again.",
     "googlePopupBlocked": "Google sign-in popup was blocked. Allow popups for this site and try again.",
     "googlePopupHint": "If Google sign-in does not open, allow popups for this site (click the icon left of the address bar → Site settings).",
+    "googleRedirectHint": "You will be redirected to Google to sign in, then returned here.",
     "resetEmailSent": "If an account exists, a reset link has been sent to your email.",
     "resetFailed": "Unable to process request. Please try again.",
     "passwordResetSuccess": "Password updated successfully",

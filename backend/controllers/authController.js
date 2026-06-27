@@ -103,6 +103,13 @@ async function login(req, res) {
   }
 }
 
+function safeRedirectPath(state) {
+  if (typeof state !== 'string' || !state.startsWith('/') || state.startsWith('//')) {
+    return '/';
+  }
+  return state;
+}
+
 async function googleAuth(req, res) {
   try {
     const { credential } = req.body;
@@ -114,6 +121,10 @@ async function googleAuth(req, res) {
 
     const payload = ticket.getPayload();
     if (!payload || !payload.email_verified) {
+      if (req.body.g_csrf_token) {
+        const clientUrl = (process.env.CLIENT_URL || 'http://localhost:3000').replace(/\/+$/, '');
+        return res.redirect(302, `${clientUrl}/login?auth_error=google_unverified`);
+      }
       return res.status(401).json({ error: 'Google email is not verified' });
     }
 
@@ -150,6 +161,15 @@ async function googleAuth(req, res) {
     const token = signToken(user);
     setAuthCookie(res, token);
 
+    // Google Sign-In redirect flow (no popup) — browser POST from Google includes g_csrf_token
+    if (req.body.g_csrf_token) {
+      const clientUrl = (process.env.CLIENT_URL || 'http://localhost:3000').replace(/\/+$/, '');
+      const next = safeRedirectPath(req.body.state);
+      const destination = user.role === 'admin' ? '/admin' : next;
+      const params = new URLSearchParams({ signed_in: '1', token });
+      return res.redirect(302, `${clientUrl}${destination}?${params.toString()}`);
+    }
+
     res.status(200).json({
       message: 'Google authentication successful',
       user: sanitizeUser(user),
@@ -157,6 +177,10 @@ async function googleAuth(req, res) {
     });
   } catch (error) {
     console.error('Google auth error:', error);
+    if (req.body.g_csrf_token) {
+      const clientUrl = (process.env.CLIENT_URL || 'http://localhost:3000').replace(/\/+$/, '');
+      return res.redirect(302, `${clientUrl}/login?auth_error=google`);
+    }
     if (error.message && error.message.includes('Token used too late')) {
       return res.status(401).json({ error: 'Google token has expired. Please sign in again.' });
     }

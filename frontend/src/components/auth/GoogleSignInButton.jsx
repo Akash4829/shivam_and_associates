@@ -1,14 +1,30 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { GoogleLogin, useGoogleOAuth } from '@react-oauth/google';
+import { getApiOrigin } from '../../utils/axiosConfig';
+
+function getGoogleLoginUri() {
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    // Google redirect must POST back to the same site origin (use Vercel /api proxy).
+    return `${window.location.origin.replace(/^http:/, 'https:')}/api/auth/google`;
+  }
+  return `${getApiOrigin()}/api/auth/google`;
+}
 
 /**
- * GoogleLogin requires width in pixels (max 400). Passing "100%" breaks the iframe
- * and makes the button appear clickable but unresponsive.
+ * Google Sign-In via full-page redirect (no popup).
+ * Popup mode is unreliable when FedCM is disabled or the browser blocks windows.
  */
-export default function GoogleSignInButton({ onSuccess, onError, disabled = false }) {
+export default function GoogleSignInButton({
+  redirectPath = '/',
+  onSuccess,
+  onError,
+  disabled = false,
+}) {
   const { scriptLoadedSuccessfully } = useGoogleOAuth();
   const containerRef = useRef(null);
   const [width, setWidth] = useState(320);
+
+  const loginUri = useMemo(() => getGoogleLoginUri(), []);
 
   useLayoutEffect(() => {
     const el = containerRef.current;
@@ -49,7 +65,9 @@ export default function GoogleSignInButton({ onSuccess, onError, disabled = fals
         text="continue_with"
         shape="rectangular"
         useOneTap={false}
-        ux_mode="popup"
+        ux_mode="redirect"
+        login_uri={loginUri}
+        state={redirectPath}
         use_fedcm_for_prompt={false}
         use_fedcm_for_button={false}
         auto_select={false}

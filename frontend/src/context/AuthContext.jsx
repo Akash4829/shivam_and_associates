@@ -42,8 +42,38 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    const signedIn = params.get('signed_in') === '1';
+    const authError = params.get('auth_error');
+    const urlToken = params.get('token');
+
+    if (authError) {
+      params.delete('auth_error');
+      const clean = `${window.location.pathname}${params.toString() ? `?${params}` : ''}`;
+      window.history.replaceState({}, '', clean);
+      setLoading(false);
+      return;
+    }
+
+    if (signedIn) {
+      if (urlToken) {
+        window.localStorage.setItem('token', urlToken);
+      }
+      writeSessionHint(true);
+      params.delete('signed_in');
+      params.delete('token');
+      const clean = `${window.location.pathname}${params.toString() ? `?${params}` : ''}`;
+      window.history.replaceState({}, '', clean);
+      fetchUser().finally(() => {
+        if (mountedRef.current) setLoading(false);
+      });
+      return;
+    }
+
     // Avoid an unnecessary 401 request on first-ever visit.
-    const hasToken = typeof window !== 'undefined' && Boolean(window.localStorage.getItem('token'));
+    const hasToken = Boolean(window.localStorage.getItem('token'));
     const hasSession = readSessionHint();
     if (!hasToken && !hasSession) {
       setLoading(false);

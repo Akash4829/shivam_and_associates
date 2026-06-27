@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -24,6 +24,14 @@ export default function Login() {
 
   const redirectPath = getRedirectPath(location);
   const isProtectedRedirect = redirectPath === '/contact' || redirectPath === '/internship';
+
+  useEffect(() => {
+    const authError = new URLSearchParams(location.search).get('auth_error');
+    if (authError) {
+      setError(t('auth.googleFailed'));
+      toast.error(t('auth.googleFailed'));
+    }
+  }, [location.search, t]);
 
   const finishAuth = (data) => {
     toast.success(t('auth.loginSuccess'));

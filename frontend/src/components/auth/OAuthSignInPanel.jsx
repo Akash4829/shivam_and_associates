@@ -50,12 +50,13 @@ export function OAuthSignInPanel({
           {hasGoogle && (
             <>
               <GoogleSignInButton
+                redirectPath={redirectPath}
                 onSuccess={onGoogleSuccess}
                 onError={handleGoogleError}
                 disabled={loading}
               />
               <p className="text-xs text-center text-slate-400 leading-relaxed px-2">
-                {t('auth.googlePopupHint')}
+                {t('auth.googleRedirectHint')}
               </p>
             </>
           )}

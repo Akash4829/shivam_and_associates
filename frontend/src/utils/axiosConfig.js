@@ -24,6 +24,15 @@ function resolveBaseUrl() {
   return 'http://localhost:5000';
 }
 
+/** Public API origin for OAuth redirect endpoints (always https in production). */
+export function getApiOrigin() {
+  const base = resolveBaseUrl();
+  if (base.startsWith('http://') && typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return base.replace(/^http:/, 'https:');
+  }
+  return base;
+}
+
 const api = axios.create({
   baseURL: resolveBaseUrl(),
   withCredentials: true,
