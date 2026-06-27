@@ -49,13 +49,19 @@ export default function Login() {
   };
 
   const handleGoogleSuccess = async (response) => {
+    if (!response?.credential) {
+      setError(t('auth.googleFailed'));
+      return;
+    }
     setLoading(true);
     setError('');
     try {
       const data = await googleLogin(response.credential);
       finishAuth(data);
     } catch (err) {
-      setError(err.response?.data?.error || t('auth.googleFailed'));
+      const msg = err.response?.data?.error || t('auth.googleFailed');
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 import { springSoft } from '../../lib/motion';
 import { AuthInput, AuthError, AuthDivider, PasswordStrength } from './AuthLayout';
 import AppleSignInButton from './AppleSignInButton';
+import GoogleSignInButton from './GoogleSignInButton';
 
 export function OAuthSignInPanel({
   mode = 'login',
@@ -25,6 +26,12 @@ export function OAuthSignInPanel({
   const [showEmail, setShowEmail] = useState(!hasGoogle && !hasApple);
   const registerPath = `/register?redirect=${encodeURIComponent(redirectPath)}`;
 
+  const handleGoogleError = () => {
+    const message = t('auth.googleFailed');
+    onAppleError?.(message);
+    toast.error(message);
+  };
+
   return (
     <div className="space-y-5">
       <div className="text-center space-y-2">
@@ -41,17 +48,11 @@ export function OAuthSignInPanel({
       {!showEmail && (
         <div className="space-y-3">
           {hasGoogle && (
-            <div className="flex justify-center [&>div]:w-full">
-              <GoogleLogin
-                onSuccess={onGoogleSuccess}
-                onError={() => onAppleError?.(t('auth.googleFailed'))}
-                theme="filled_blue"
-                size="large"
-                width="100%"
-                text="continue_with"
-                shape="rectangular"
-              />
-            </div>
+            <GoogleSignInButton
+              onSuccess={onGoogleSuccess}
+              onError={handleGoogleError}
+              disabled={loading}
+            />
           )}
 
           {hasApple && (
