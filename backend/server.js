@@ -34,9 +34,13 @@ function getAllowedOrigins() {
 
 const allowedOrigins = getAllowedOrigins();
 
+// Google Sign-In redirect POSTs back with this Origin header
+const OAUTH_PROVIDER_ORIGINS = ['https://accounts.google.com'];
+
 function isOriginAllowed(origin) {
   if (!origin) return true;
   if (allowedOrigins.includes(origin)) return true;
+  if (OAUTH_PROVIDER_ORIGINS.includes(origin)) return true;
   if (process.env.ALLOW_VERCEL_PREVIEWS === 'true') {
     try {
       const { hostname } = new URL(origin);
