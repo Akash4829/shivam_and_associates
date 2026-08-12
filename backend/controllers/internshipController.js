@@ -101,7 +101,7 @@ const createInternshipApplication = async (req, res) => {
     const result = await pool.query(query, values);
 
     sendMail({
-      to: process.env.FIRM_EMAIL || 'advshivammishra2124@gmail.com',
+      to: process.env.FIRM_EMAIL || process.env.SMTP_USER || 'advshivammishra2124@gmail.com',
       subject: 'New Internship Application — Mishra Juris Chamber',
       html: `
         <h2>New Internship Application</h2>

@@ -31,10 +31,18 @@ const createAppointment = async (req, res) => {
     const values = [client_name, phone_number, email, case_summary, preferred_date || null];
     const result = await pool.query(query, values);
 
-    sendMail({
-      to: process.env.FIRM_EMAIL || 'advshivammishra2124@gmail.com',
-      subject: 'New Appointment Request — Mishra Juris Chamber',
-      html: `
+    // FIRM_EMAIL = where alerts are delivered. SMTP_USER = Gmail account that sends them.
+    const notifyTo =
+      process.env.FIRM_EMAIL ||
+      process.env.SMTP_USER ||
+      'advshivammishra2124@gmail.com';
+    let emailSent = false;
+    let emailError = null;
+    try {
+      const mailResult = await sendMail({
+        to: notifyTo,
+        subject: 'New Appointment Request — Mishra Juris Chamber',
+        html: `
         <h2>New Appointment Request</h2>
         <p><strong>Client Name:</strong> ${escapeHtml(client_name)}</p>
         <p><strong>Phone Number:</strong> ${escapeHtml(phone_number)}</p>
@@ -45,11 +53,20 @@ const createAppointment = async (req, res) => {
         <hr>
         <p><em>Automated notification from the firm website.</em></p>
       `,
-    }).catch((err) => console.error('Appointment email failed:', err.message));
+      });
+      emailSent = Boolean(mailResult?.sent);
+      if (!emailSent) emailError = mailResult?.reason || 'Email skipped';
+    } catch (err) {
+      emailError = err.message;
+      console.error('Appointment email failed:', err.message);
+    }
 
     res.status(201).json({
       message: 'Appointment created successfully',
       appointment: result.rows[0],
+      emailSent,
+      emailError,
+      notifiedTo: notifyTo,
     });
   } catch (error) {
     console.error('Error creating appointment:', error);
