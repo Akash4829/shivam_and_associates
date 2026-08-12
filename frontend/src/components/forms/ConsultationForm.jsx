@@ -49,6 +49,7 @@ export function ConsultationForm() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [emailNotice, setEmailNotice] = useState(null);
   const [errors, setErrors] = useState({});
   const [data, setData] = useState({
     client_name: '',
@@ -93,7 +94,13 @@ export function ConsultationForm() {
         case_summary: data.case_summary || undefined,
         preferred_date: data.preferred_date || undefined,
       };
-      await appointmentsService.create(payload);
+      const response = await appointmentsService.create(payload);
+      setEmailNotice(
+        response?.data?.emailSent
+          ? null
+          : response?.data?.emailError ||
+              'Request saved, but the notification email could not be sent. Check admin appointments.'
+      );
       setSubmitted(true);
       events.formSubmit('consultation');
     } catch (err) {
@@ -113,7 +120,12 @@ export function ConsultationForm() {
         <motion.div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-success/20 text-success text-2xl">✓</motion.div>
         <h2 className={`text-xl font-semibold ${isLight ? 'text-ink' : 'text-off-white'}`}>{t('form.successTitle')}</h2>
         <p className={`mt-3 text-sm ${isLight ? 'text-muted' : 'text-slate-400'}`}>{t('form.successDesc')}</p>
-        <Button className="mt-8" onClick={() => { setSubmitted(false); setStep(1); setData({ client_name: '', phone_number: '', email: '', case_summary: '', preferred_date: '' }); }}>
+        {emailNotice && (
+          <p className="mt-4 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+            {emailNotice}
+          </p>
+        )}
+        <Button className="mt-8" onClick={() => { setSubmitted(false); setEmailNotice(null); setStep(1); setData({ client_name: '', phone_number: '', email: '', case_summary: '', preferred_date: '' }); }}>
           {t('form.submitAnother')}
         </Button>
       </GlassCard>
