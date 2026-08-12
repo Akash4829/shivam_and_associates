@@ -3,8 +3,13 @@ import { GoogleLogin, useGoogleOAuth } from '@react-oauth/google';
 import { getApiOrigin } from '../../utils/axiosConfig';
 
 function getGoogleLoginUri() {
+  // Prefer a stable production origin so Vercel preview URLs don't cause redirect_uri_mismatch.
+  const configured = (process.env.REACT_APP_SITE_URL || '').replace(/\/+$/, '');
+  if (configured) {
+    return `${configured.replace(/^http:/, 'https:')}/api/auth/google`;
+  }
   if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-    // Google redirect must POST back to the same site origin (use Vercel /api proxy).
+    // Fallback: same-origin /api proxy (must match Google authorized redirect URI).
     return `${window.location.origin.replace(/^http:/, 'https:')}/api/auth/google`;
   }
   return `${getApiOrigin()}/api/auth/google`;
