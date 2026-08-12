@@ -7,7 +7,7 @@ export const serviceCatalog = [
     descKey: 'serviceItems.criminal.desc',
     longKey: 'serviceItems.criminal.long',
     faqKeys: ['faq.q1', 'faq.q3', 'faq.q5'],
-    span: 'col-span-1 sm:col-span-2 xl:col-span-2',
+    span: 'col-span-1',
     featured: true,
     badgeKey: 'practice.criminalBadge',
     related: ['civilLitigation', 'familyLaw'],

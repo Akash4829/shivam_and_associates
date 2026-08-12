@@ -80,10 +80,10 @@ function ServicesPage() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.05 }}
-            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch"
           >
             {serviceCatalog.map((s) => (
-              <motion.div key={s.id} variants={fadeUp} className={s.span}>
+              <motion.div key={s.id} variants={fadeUp} className={`${s.span} h-full`}>
                 <BentoCard
                   icon={s.icon}
                   image={images[s.imageKey]}

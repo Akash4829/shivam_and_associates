@@ -48,7 +48,7 @@ export function BentoCard({
     >
       {image ? (
         <>
-          <div className={`relative shrink-0 overflow-hidden ${featured ? 'h-52 sm:h-56' : 'h-44 sm:h-48'}`}>
+          <div className="relative h-44 sm:h-48 shrink-0 overflow-hidden">
             <img
               src={image}
               alt=""
@@ -74,19 +74,19 @@ export function BentoCard({
               </div>
             )}
           </div>
-          <div className="flex flex-1 flex-col gap-3 p-5">
+          <div className="flex min-h-[9.5rem] flex-1 flex-col gap-3 p-5">
             {title && (
               <h3
-                className={`font-display font-semibold leading-snug ${
-                  featured ? 'text-xl sm:text-2xl' : 'text-lg'
-                } ${isLight ? 'text-ink' : 'text-off-white'}`}
+                className={`font-display font-semibold text-lg leading-snug ${
+                  isLight ? 'text-ink' : 'text-off-white'
+                }`}
               >
                 {title}
               </h3>
             )}
             {description && (
               <p
-                className={`text-sm leading-relaxed ${featured ? 'line-clamp-4' : 'line-clamp-3'} ${
+                className={`text-sm leading-relaxed line-clamp-3 ${
                   isLight ? 'text-muted' : 'text-slate-400'
                 }`}
               >

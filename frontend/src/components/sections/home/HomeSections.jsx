@@ -134,23 +134,23 @@ export function PracticeAreasBento() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
-        >
-          {practiceAreas.map((area) => (
-            <motion.div key={area.id} variants={fadeUp} className={area.span}>
-              <BentoCard
-                icon={area.icon}
-                image={images[area.imageKey]}
-                title={t(area.titleKey)}
-                description={t(area.descKey)}
-                to={area.to}
-                ctaLabel={t('practice.learnMore')}
-                featured={Boolean(area.featured)}
-                badge={area.badgeKey ? t(area.badgeKey) : undefined}
-              />
-            </motion.div>
-          ))}
-        </motion.div>
+            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch"
+          >
+            {practiceAreas.map((area) => (
+              <motion.div key={area.id} variants={fadeUp} className={`${area.span} h-full`}>
+                <BentoCard
+                  icon={area.icon}
+                  image={images[area.imageKey]}
+                  title={t(area.titleKey)}
+                  description={t(area.descKey)}
+                  to={area.to}
+                  ctaLabel={t('practice.learnMore')}
+                  featured={Boolean(area.featured)}
+                  badge={area.badgeKey ? t(area.badgeKey) : undefined}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
       </motion.div>
     </section>
   );

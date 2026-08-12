@@ -5,7 +5,7 @@ export const practiceAreas = [
     descKey: 'practice.criminalDesc',
     icon: 'shield',
     to: '/focus-areas#criminal',
-    span: 'col-span-1 sm:col-span-2 xl:col-span-2',
+    span: 'col-span-1',
     imageKey: 'practiceHighCourt',
     featured: true,
     badgeKey: 'practice.criminalBadge',

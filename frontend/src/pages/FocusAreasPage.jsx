@@ -63,10 +63,10 @@ function FocusAreasPage() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true }}
-            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch"
           >
             {practiceAreas.map((area) => (
-              <motion.div key={area.id} variants={fadeUp} className={area.span}>
+              <motion.div key={area.id} variants={fadeUp} className={`${area.span} h-full`}>
                 <BentoCard
                   icon={area.icon}
                   image={images[area.imageKey]}
