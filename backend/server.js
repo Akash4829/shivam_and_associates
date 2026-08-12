@@ -38,10 +38,13 @@ const allowedOrigins = getAllowedOrigins();
 const OAUTH_PROVIDER_ORIGINS = ['https://accounts.google.com'];
 
 function isOriginAllowed(origin) {
-  if (!origin) return true;
+  // No Origin (top-level navigation / some proxies) or opaque "null"
+  if (!origin || origin === 'null') return true;
   if (allowedOrigins.includes(origin)) return true;
   if (OAUTH_PROVIDER_ORIGINS.includes(origin)) return true;
-  if (process.env.ALLOW_VERCEL_PREVIEWS === 'true') {
+  // Default true for *.vercel.app so preview hosts and Vercel→Render proxy Origin work.
+  // Set ALLOW_VERCEL_PREVIEWS=false to require an exact CLIENT_URL / CLIENT_URLS match.
+  if (process.env.ALLOW_VERCEL_PREVIEWS !== 'false') {
     try {
       const { hostname } = new URL(origin);
       if (hostname.endsWith('.vercel.app')) return true;
@@ -59,10 +62,10 @@ app.use(
   cors({
     origin(origin, callback) {
       if (isOriginAllowed(origin)) return callback(null, true);
-      if (!isProduction) {
-        console.warn(`CORS blocked origin: ${origin}. Allowed: ${allowedOrigins.join(', ')}`);
-      }
-      return callback(new Error('Not allowed by CORS'));
+      console.warn(`CORS blocked origin: ${origin}. Allowed: ${allowedOrigins.join(', ')}`);
+      const err = new Error('Not allowed by CORS');
+      err.blockedOrigin = origin;
+      return callback(err);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -136,7 +139,11 @@ app.use((req, res, next) => {
 
 app.use((err, _req, res, _next) => {
   if (err.message === 'Not allowed by CORS') {
-    return res.status(403).json({ error: 'Origin not allowed' });
+    return res.status(403).json({
+      error: 'Origin not allowed',
+      origin: err.blockedOrigin || null,
+      allowed: allowedOrigins,
+    });
   }
   if (err instanceof Error && err.message === 'Only PDF or DOC/DOCX files are allowed') {
     return res.status(400).json({ error: err.message });
