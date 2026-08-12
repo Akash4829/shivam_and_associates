@@ -70,7 +70,7 @@ export default function Login() {
       let msg = err.response?.data?.error || t('auth.googleFailed');
       if (err.response?.status === 405) {
         msg =
-          'API URL misconfigured: set REACT_APP_API_URL to your Railway backend URL on Vercel (not the Vercel site URL).';
+          'API URL misconfigured: set REACT_APP_API_URL to your Render backend URL on Vercel (not the Vercel site URL).';
       }
       setError(msg);
       toast.error(msg);
