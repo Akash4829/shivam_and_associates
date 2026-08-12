@@ -55,17 +55,20 @@
     "transparentDesc": "Clear fees, timelines, and options before you commit.",
     "personalized": "Personalized strategy",
     "personalizedDesc": "Every case mapped to your goals and risk appetite.",
-    "highCourt": "High Court expertise",
-    "highCourtDesc": "Deep experience in Allahabad High Court practice.",
+    "highCourt": "Criminal Block expertise",
+    "highCourtDesc": "Flagship practice in bail, quashing, and High Court criminal advocacy.",
     "digital": "Digital-first communication",
     "digitalDesc": "Updates via WhatsApp, email, and secure document sharing."
   },
   "practice": {
     "kicker": "Practice areas",
     "title": "Comprehensive legal practice",
-    "subtitle": "Dedicated representation in High Court matters, civil litigation, family law, and property disputes across Uttar Pradesh and India.",
-    "highCourt": "High Court Matters",
-    "highCourtDesc": "CPC 482 / BNSS 528 matters, High Court petitions, and criminal & civil High Court proceedings.",
+    "subtitle": "Core strength in Criminal Block advocacy, with dedicated civil, family, and property representation across Uttar Pradesh and India.",
+    "criminal": "Criminal Block",
+    "criminalBadge": "Core practice",
+    "criminalDesc": "FIR quashing, bail, BNSS / CrPC matters, High Court criminal petitions, and trial-to-appeal criminal defence — our primary focus.",
+    "highCourt": "Criminal Block",
+    "highCourtDesc": "FIR quashing, bail, BNSS / CrPC matters, High Court criminal petitions, and trial-to-appeal criminal defence — our primary focus.",
     "civilLitigation": "Civil Litigation",
     "civilLitigationDesc": "Civil suits, recovery matters, injunction matters, contract disputes, and civil appeals.",
     "familyLaw": "Family Law",
@@ -237,10 +240,15 @@
     "phase4Desc": "Final order, advisory note, and a clear next-step roadmap."
   },
   "serviceItems": {
+    "criminal": {
+      "title": "Criminal Block",
+      "desc": "Bail, FIR quashing, BNSS / CrPC strategy, and High Court criminal advocacy — the chamber’s core practice.",
+      "long": "Criminal law is our flagship practice. We handle FIR registration and quashing petitions, anticipatory and regular bail, BNSS / CrPC proceedings, trial defence, and High Court criminal matters before the Allahabad High Court and Lucknow Bench — with urgency, clarity, and courtroom discipline."
+    },
     "highCourt": {
-      "title": "High Court matters",
-      "desc": "CPC 482 / BNSS 528 petitions, High Court proceedings, and appellate advocacy before the Allahabad High Court.",
-      "long": "We represent clients in inherent jurisdiction matters, writ petitions, criminal and civil High Court proceedings, and strategic appellate work before the Allahabad High Court and Lucknow Bench."
+      "title": "Criminal Block",
+      "desc": "Bail, FIR quashing, BNSS / CrPC strategy, and High Court criminal advocacy — the chamber’s core practice.",
+      "long": "Criminal law is our flagship practice. We handle FIR registration and quashing petitions, anticipatory and regular bail, BNSS / CrPC proceedings, trial defence, and High Court criminal matters before the Allahabad High Court and Lucknow Bench — with urgency, clarity, and courtroom discipline."
     },
     "civilLitigation": {
       "title": "Civil litigation",
@@ -261,12 +269,17 @@
   "focus": {
     "title": "Practice areas",
     "titleHighlight": "legal expertise",
-    "subtitle": "Effective legal solutions in Civil Litigation, Family Law, Property Disputes, and High Court matters.",
+    "subtitle": "Criminal Block advocacy first — supported by Civil Litigation, Family Law, and Property Disputes.",
     "kicker": "Our practice",
-    "highCourtP1": "CPC 482 / BNSS 528 matters and quashing petitions",
-    "highCourtP2": "High Court petitions and writ proceedings",
-    "highCourtP3": "Criminal High Court proceedings",
-    "highCourtP4": "Civil High Court proceedings and appeals",
+    "criminalP1": "FIR quashing petitions (BNSS 528 / CrPC 482) and abuse-of-process relief",
+    "criminalP2": "Anticipatory bail, regular bail, and custody-related hearings",
+    "criminalP3": "Trial defence strategy, charge framing, and evidence management",
+    "criminalP4": "High Court criminal petitions, revisions, and appeals",
+    "criminalP5": "Police station representation and urgent midnight / weekend interventions",
+    "highCourtP1": "FIR quashing petitions (BNSS 528 / CrPC 482) and abuse-of-process relief",
+    "highCourtP2": "Anticipatory bail, regular bail, and custody-related hearings",
+    "highCourtP3": "Trial defence strategy, charge framing, and evidence management",
+    "highCourtP4": "High Court criminal petitions, revisions, and appeals",
     "civilP1": "Civil suits and recovery matters",
     "civilP2": "Injunction matters — temporary and permanent",
     "civilP3": "Contract disputes and breach claims",

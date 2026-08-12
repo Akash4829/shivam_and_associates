@@ -145,6 +145,8 @@ export function PracticeAreasBento() {
                 description={t(area.descKey)}
                 to={area.to}
                 ctaLabel={t('practice.learnMore')}
+                featured={Boolean(area.featured)}
+                badge={area.badgeKey ? t(area.badgeKey) : undefined}
               />
             </motion.div>
           ))}

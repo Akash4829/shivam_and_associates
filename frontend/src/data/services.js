@@ -1,13 +1,15 @@
 export const serviceCatalog = [
   {
-    id: 'highCourt',
-    icon: 'building',
+    id: 'criminal',
+    icon: 'shield',
     imageKey: 'practiceHighCourt',
-    titleKey: 'serviceItems.highCourt.title',
-    descKey: 'serviceItems.highCourt.desc',
-    longKey: 'serviceItems.highCourt.long',
+    titleKey: 'serviceItems.criminal.title',
+    descKey: 'serviceItems.criminal.desc',
+    longKey: 'serviceItems.criminal.long',
     faqKeys: ['faq.q1', 'faq.q3', 'faq.q5'],
-    span: 'col-span-1',
+    span: 'col-span-1 sm:col-span-2 xl:col-span-2',
+    featured: true,
+    badgeKey: 'practice.criminalBadge',
     related: ['civilLitigation', 'familyLaw'],
   },
   {
@@ -19,7 +21,7 @@ export const serviceCatalog = [
     longKey: 'serviceItems.civilLitigation.long',
     faqKeys: ['faq.q2', 'faq.q4'],
     span: 'col-span-1',
-    related: ['propertyDisputes', 'highCourt'],
+    related: ['propertyDisputes', 'criminal'],
   },
   {
     id: 'familyLaw',
@@ -30,7 +32,7 @@ export const serviceCatalog = [
     longKey: 'serviceItems.familyLaw.long',
     faqKeys: ['faq.q3', 'faq.q4'],
     span: 'col-span-1',
-    related: ['civilLitigation', 'highCourt'],
+    related: ['civilLitigation', 'criminal'],
   },
   {
     id: 'propertyDisputes',
@@ -41,7 +43,7 @@ export const serviceCatalog = [
     longKey: 'serviceItems.propertyDisputes.long',
     faqKeys: ['faq.q4', 'faq.q5'],
     span: 'col-span-1',
-    related: ['civilLitigation', 'highCourt'],
+    related: ['civilLitigation', 'criminal'],
   },
 ];
 
@@ -54,12 +56,12 @@ export const servicePhases = [
 
 export const focusAreas = [
   {
-    id: 'highCourt',
-    icon: 'building',
+    id: 'criminal',
+    icon: 'shield',
     imageKey: 'practiceHighCourt',
-    titleKey: 'practice.highCourt',
-    headlineKey: 'practice.highCourtDesc',
-    bulletsKeys: ['focus.highCourtP1', 'focus.highCourtP2', 'focus.highCourtP3', 'focus.highCourtP4'],
+    titleKey: 'practice.criminal',
+    headlineKey: 'practice.criminalDesc',
+    bulletsKeys: ['focus.criminalP1', 'focus.criminalP2', 'focus.criminalP3', 'focus.criminalP4', 'focus.criminalP5'],
   },
   {
     id: 'civilLitigation',

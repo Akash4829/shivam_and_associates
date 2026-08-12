@@ -91,7 +91,17 @@ function ServicesPage() {
                   description={t(s.descKey)}
                   ctaLabel={t('practice.learnMore')}
                   active={activeId === s.id}
-                  onClick={() => setActiveId(s.id)}
+                  featured={Boolean(s.featured)}
+                  badge={s.badgeKey ? t(s.badgeKey) : undefined}
+                  onClick={() => {
+                    setActiveId(s.id);
+                    window.requestAnimationFrame(() => {
+                      document.getElementById('service-detail')?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                      });
+                    });
+                  }}
                 />
               </motion.div>
             ))}
@@ -99,7 +109,10 @@ function ServicesPage() {
         </div>
       </section>
 
-      <section className={`section-padding ${isLight ? 'bg-white' : 'bg-secondary/30'}`}>
+      <section
+        id="service-detail"
+        className={`scroll-mt-28 section-padding ${isLight ? 'bg-white' : 'bg-secondary/30'}`}
+      >
         <div className="container-premium grid grid-cols-1 lg:grid-cols-12 gap-10">
           <aside className="lg:col-span-4">
             <div className="lg:sticky lg:top-28 space-y-4">

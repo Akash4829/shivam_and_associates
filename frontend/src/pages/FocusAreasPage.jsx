@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import PageHero from '../components/sections/PageHero';
 import FAQBlock from '../components/sections/FAQBlock';
@@ -11,11 +12,26 @@ import { useThemeMode } from '../context/ThemeContext';
 import { fadeUp, staggerContainer } from '../animations/variants';
 import { practiceAreas, faqItems } from '../data/practiceAreas';
 import { focusAreas } from '../data/services';
+
+function scrollToHash(hash) {
+  const id = (hash || '').replace(/^#/, '');
+  if (!id) return;
+  window.requestAnimationFrame(() => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
 function FocusAreasPage() {
   const { t, i18n } = useTranslation();
   const { theme } = useThemeMode();
   const isLight = theme === 'light';
+  const location = useLocation();
   const faqList = faqItems.map((f, i) => ({ id: i, question: t(f.qKey), answer: t(f.aKey) }));
+
+  useEffect(() => {
+    scrollToHash(location.hash);
+  }, [location.hash, location.pathname]);
 
   return (
     <>
@@ -56,8 +72,10 @@ function FocusAreasPage() {
                   image={images[area.imageKey]}
                   title={t(area.titleKey)}
                   description={t(area.descKey)}
-                  to={area.to}
+                  to={`/focus-areas#${area.id}`}
                   ctaLabel={t('practice.learnMore')}
+                  featured={Boolean(area.featured)}
+                  badge={area.badgeKey ? t(area.badgeKey) : undefined}
                 />
               </motion.div>
             ))}
@@ -70,11 +88,12 @@ function FocusAreasPage() {
           {focusAreas.map((f, idx) => (
             <motion.div
               key={f.id}
+              id={f.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.6 }}
-              className={`grid grid-cols-1 lg:grid-cols-12 gap-10 items-center ${
+              className={`scroll-mt-28 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center ${
                 idx % 2 === 1 ? 'lg:[&>*:first-child]:order-2' : ''
               }`}
             >
@@ -117,7 +136,6 @@ function FocusAreasPage() {
       </section>
 
       <FAQBlock kicker={t('faq.kicker')} title={t('faq.title')} items={faqList} />
-
     </>
   );
 }

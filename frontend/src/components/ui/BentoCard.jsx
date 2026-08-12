@@ -17,6 +17,8 @@ export function BentoCard({
   children,
   accentBorder = true,
   active = false,
+  featured = false,
+  badge,
   onClick,
 }) {
   const { theme } = useThemeMode();
@@ -25,8 +27,12 @@ export function BentoCard({
 
   const borderCls = accentBorder
     ? isLight
-      ? 'border-navy/10 bg-white hover:border-accent/40'
-      : 'border-white/[0.08] bg-white/[0.03] hover:border-accent/30'
+      ? featured
+        ? 'border-accent/50 bg-white shadow-glow-accent'
+        : 'border-navy/10 bg-white hover:border-accent/40'
+      : featured
+        ? 'border-accent/40 bg-white/[0.05] shadow-glow-accent'
+        : 'border-white/[0.08] bg-white/[0.03] hover:border-accent/30'
     : '';
   const activeCls = active ? '!border-accent/60 shadow-glow-accent' : '';
 
@@ -38,21 +44,26 @@ export function BentoCard({
       onClick={onClick}
       className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-500 hover:shadow-glow-accent ${borderCls} ${activeCls} ${
         image ? 'p-0' : 'p-6'
-      } ${onClick ? 'cursor-pointer' : ''}`}
+      } ${onClick || to || href ? 'cursor-pointer' : ''}`}
     >
       {image ? (
         <>
-          <div className="relative h-44 sm:h-48 shrink-0 overflow-hidden">
+          <div className={`relative shrink-0 overflow-hidden ${featured ? 'h-52 sm:h-56' : 'h-44 sm:h-48'}`}>
             <img
               src={image}
               alt=""
-              className="h-full w-full object-cover object-center"
+              className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
               loading="lazy"
             />
             <div
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent"
               aria-hidden
             />
+            {badge && (
+              <span className="absolute top-3 left-3 z-10 rounded-md bg-accent px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-primary shadow-sm">
+                {badge}
+              </span>
+            )}
             {icon && (
               <div
                 className={`absolute bottom-3 left-4 flex h-10 w-10 items-center justify-center rounded-lg text-accent shadow-sm ${
@@ -66,16 +77,16 @@ export function BentoCard({
           <div className="flex flex-1 flex-col gap-3 p-5">
             {title && (
               <h3
-                className={`font-display font-semibold text-lg leading-snug ${
-                  isLight ? 'text-ink' : 'text-off-white'
-                }`}
+                className={`font-display font-semibold leading-snug ${
+                  featured ? 'text-xl sm:text-2xl' : 'text-lg'
+                } ${isLight ? 'text-ink' : 'text-off-white'}`}
               >
                 {title}
               </h3>
             )}
             {description && (
               <p
-                className={`text-sm leading-relaxed line-clamp-3 ${
+                className={`text-sm leading-relaxed ${featured ? 'line-clamp-4' : 'line-clamp-3'} ${
                   isLight ? 'text-muted' : 'text-slate-400'
                 }`}
               >
@@ -84,7 +95,7 @@ export function BentoCard({
             )}
             {children}
             {ctaLabel && (
-              <span className="mt-auto inline-flex text-sm font-semibold text-accent group-hover:translate-x-0.5 transition-transform">
+              <span className="mt-auto inline-flex items-center gap-1 text-sm font-semibold text-accent underline-offset-4 group-hover:underline group-hover:translate-x-0.5 transition-transform">
                 {ctaLabel} →
               </span>
             )}
@@ -114,7 +125,7 @@ export function BentoCard({
             )}
             {children}
             {ctaLabel && (
-              <span className="mt-1 inline-flex text-sm font-semibold text-accent group-hover:translate-x-0.5 transition-transform">
+              <span className="mt-1 inline-flex text-sm font-semibold text-accent underline-offset-4 group-hover:underline group-hover:translate-x-0.5 transition-transform">
                 {ctaLabel} →
               </span>
             )}
@@ -130,7 +141,7 @@ export function BentoCard({
 
   if (to) {
     return (
-      <Link to={to} className={`block h-full ${span} ${className}`}>
+      <Link to={to} className={`relative z-10 block h-full ${span} ${className}`}>
         {inner}
       </Link>
     );
@@ -141,13 +152,13 @@ export function BentoCard({
         href={href}
         target={href.startsWith('http') ? '_blank' : undefined}
         rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
-        className={`block h-full ${span} ${className}`}
+        className={`relative z-10 block h-full ${span} ${className}`}
       >
         {inner}
       </a>
     );
   }
-  return <div className={`block h-full ${span} ${className}`}>{inner}</div>;
+  return <div className={`relative z-10 block h-full ${span} ${className}`}>{inner}</div>;
 }
 
 export default BentoCard;
