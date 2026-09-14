@@ -8,7 +8,30 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LegalDisclaimerModal from './components/legal/LegalDisclaimerModal';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
-import { legalServiceSchema } from './constants/site';
+import { SITE, legalServiceSchema } from './constants/site';
+
+class AppErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-off-white px-6 py-24 text-center text-ink">
+          <p className="font-display text-2xl">Mishra Juris Chamber</p>
+          <p className="mt-3 text-muted">The page failed to load. Please refresh and try again.</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const FocusAreasPage = lazy(() => import('./pages/FocusAreasPage'));
@@ -128,13 +151,15 @@ function AppRoutes() {
 
 function App() {
   const content = (
-    <ThemeProvider>
-      <AuthProvider>
-        <Router>
-          <AppRoutes />
-        </Router>
-      </AuthProvider>
-    </ThemeProvider>
+    <AppErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <Router>
+            <AppRoutes />
+          </Router>
+        </AuthProvider>
+      </ThemeProvider>
+    </AppErrorBoundary>
   );
 
   if (googleClientId) {
