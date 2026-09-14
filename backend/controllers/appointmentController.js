@@ -74,21 +74,39 @@ const createAppointment = async (req, res) => {
   }
 };
 
+const ALLOWED_STATUSES = ['Pending', 'Confirmed', 'Completed', 'Cancelled'];
+const CLIENT_NOTIFY_STATUSES = ['Confirmed', 'Cancelled'];
+
 const getAllAppointments = async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 10));
     const offset = (page - 1) * limit;
+    const status = typeof req.query.status === 'string' ? req.query.status.trim() : '';
 
-    const countResult = await pool.query('SELECT COUNT(*)::int AS total FROM appointments');
+    const filters = [];
+    const params = [];
+    if (status && ALLOWED_STATUSES.includes(status)) {
+      params.push(status);
+      filters.push(`status = $${params.length}`);
+    }
+
+    const whereClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+
+    const countResult = await pool.query(
+      `SELECT COUNT(*)::int AS total FROM appointments ${whereClause}`,
+      params
+    );
     const totalCount = countResult.rows[0].total;
 
+    const dataParams = [...params, limit, offset];
     const dataResult = await pool.query(
       `SELECT id, client_name, phone_number, email, case_summary, preferred_date, status, created_at
        FROM appointments
+       ${whereClause}
        ORDER BY created_at DESC
-       LIMIT $1 OFFSET $2`,
-      [limit, offset]
+       LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+      dataParams
     );
 
     res.status(200).json({
@@ -103,12 +121,39 @@ const getAllAppointments = async (req, res) => {
   }
 };
 
-const ALLOWED_STATUSES = ['Pending', 'Confirmed', 'Completed', 'Cancelled'];
+async function notifyClientOfStatus(appointment, status) {
+  if (!CLIENT_NOTIFY_STATUSES.includes(status) || !appointment?.email) {
+    return { sent: false, reason: 'skipped' };
+  }
+
+  const subject =
+    status === 'Confirmed'
+      ? 'Your appointment request has been confirmed — Mishra Juris Chamber'
+      : 'Update on your appointment request — Mishra Juris Chamber';
+
+  const body =
+    status === 'Confirmed'
+      ? `<p>Dear ${escapeHtml(appointment.client_name)},</p>
+         <p>Your consultation request has been <strong>confirmed</strong>. Our chambers will contact you shortly to finalize the schedule.</p>`
+      : `<p>Dear ${escapeHtml(appointment.client_name)},</p>
+         <p>Your consultation request has been marked as <strong>cancelled</strong>. If this was unexpected, please reply to this email or call us.</p>`;
+
+  return sendMail({
+    to: appointment.email,
+    subject,
+    html: `
+      ${body}
+      <p><strong>Preferred date:</strong> ${escapeHtml(appointment.preferred_date) || 'Not specified'}</p>
+      <hr>
+      <p><em>Mishra Juris Chamber</em></p>
+    `,
+  });
+}
 
 const updateAppointmentStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, notify_client: notifyClient = true } = req.body;
 
     if (!status || !ALLOWED_STATUSES.includes(status)) {
       return res.status(400).json({
@@ -123,7 +168,7 @@ const updateAppointmentStatus = async (req, res) => {
 
     const result = await pool.query(
       `UPDATE appointments SET status = $1 WHERE id = $2
-       RETURNING id, client_name, phone_number, email, status, created_at`,
+       RETURNING id, client_name, phone_number, email, case_summary, preferred_date, status, created_at`,
       [status, numericId]
     );
 
@@ -131,9 +176,26 @@ const updateAppointmentStatus = async (req, res) => {
       return res.status(404).json({ error: 'Appointment not found' });
     }
 
+    const appointment = result.rows[0];
+    let emailSent = false;
+    let emailError = null;
+
+    if (notifyClient !== false && CLIENT_NOTIFY_STATUSES.includes(status)) {
+      try {
+        const mailResult = await notifyClientOfStatus(appointment, status);
+        emailSent = Boolean(mailResult?.sent);
+        if (!emailSent) emailError = mailResult?.reason || 'Email skipped';
+      } catch (err) {
+        emailError = err.message;
+        console.error('Appointment client notify failed:', err.message);
+      }
+    }
+
     res.status(200).json({
       message: 'Appointment status updated successfully',
-      appointment: result.rows[0],
+      appointment,
+      emailSent,
+      emailError,
     });
   } catch (error) {
     console.error('Error updating appointment status:', error);

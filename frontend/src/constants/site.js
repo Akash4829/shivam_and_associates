@@ -17,9 +17,9 @@ export const SITE = {
   hoursTime: '9:00 AM – 9:30 PM',
   responseTime: 'Within 24 hours',
   social: {
-    instagram: '#',
-    facebook: '#',
-    linkedin: '#',
+    instagram: 'https://www.instagram.com/advocate.shivammishra',
+    facebook: 'https://www.facebook.com/share/14odoD4Xz2R/',
+    linkedin: 'https://www.linkedin.com/in/shivam-mishra-8a4810333',
   },
 };
 

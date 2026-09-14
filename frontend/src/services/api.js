@@ -2,9 +2,10 @@ import axios from '../utils/axiosConfig';
 
 export const appointmentsService = {
   create: (payload) => axios.post('/api/appointments', payload),
-  list: ({ page = 1, limit = 10 } = {}) =>
-    axios.get('/api/appointments', { params: { page, limit } }),
-  updateStatus: (id, status) => axios.put(`/api/appointments/${id}`, { status }),
+  list: ({ page = 1, limit = 10, status } = {}) =>
+    axios.get('/api/appointments', { params: { page, limit, status: status || undefined } }),
+  updateStatus: (id, status, { notifyClient = true } = {}) =>
+    axios.put(`/api/appointments/${id}`, { status, notify_client: notifyClient }),
 };
 
 export const internshipService = {

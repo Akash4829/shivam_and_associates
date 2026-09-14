@@ -281,6 +281,135 @@ function InternshipDetailModal({ application, onClose, onSave, saving }) {
   );
 }
 
+function formatPreferredDate(dateString) {
+  if (!dateString) return '—';
+  return new Date(dateString).toLocaleDateString('en-IN', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+function AppointmentDetailModal({ appointment, onClose, onSave, saving }) {
+  const [status, setStatus] = useState(appointment?.status || 'Pending');
+  const [notifyClient, setNotifyClient] = useState(true);
+
+  useEffect(() => {
+    setStatus(appointment?.status || 'Pending');
+    setNotifyClient(true);
+  }, [appointment]);
+
+  if (!appointment) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <div
+        className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="appointment-modal-title"
+      >
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-slate-200 bg-white px-6 py-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-amber-600">Appointment</p>
+            <h2 id="appointment-modal-title" className="text-xl font-bold text-slate-900 mt-1">
+              {appointment.client_name}
+            </h2>
+            <div className="mt-2">
+              <StatusBadge status={appointment.status} />
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="px-6 py-5 space-y-5 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase text-slate-500">Email</p>
+              <a href={`mailto:${appointment.email}`} className="mt-1 block text-slate-900 hover:text-amber-700 break-all">
+                {appointment.email}
+              </a>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase text-slate-500">Phone</p>
+              <a href={`tel:${appointment.phone_number}`} className="mt-1 block text-slate-900 hover:text-amber-700">
+                {appointment.phone_number}
+              </a>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase text-slate-500">Preferred date</p>
+              <p className="mt-1 text-slate-900">{formatPreferredDate(appointment.preferred_date)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase text-slate-500">Submitted</p>
+              <p className="mt-1 text-slate-900">{formatDate(appointment.created_at)}</p>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase text-slate-500">Case summary</p>
+            <p className="mt-1 text-slate-800 whitespace-pre-wrap rounded-lg bg-slate-50 border border-slate-200 p-4">
+              {appointment.case_summary?.trim() || 'No summary provided.'}
+            </p>
+          </div>
+
+          <div className="border-t border-slate-200 pt-4 space-y-3">
+            <label htmlFor="appointment-status" className="block text-xs font-semibold uppercase text-slate-500">
+              Update status
+            </label>
+            <select
+              id="appointment-status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white"
+            >
+              {APPOINTMENT_STATUSES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+            {(status === 'Confirmed' || status === 'Cancelled') && (
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={notifyClient}
+                  onChange={(e) => setNotifyClient(e.target.checked)}
+                  className="rounded border-slate-300"
+                />
+                Email client about this status change
+              </label>
+            )}
+          </div>
+        </div>
+
+        <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-white"
+          >
+            Close
+          </button>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => onSave(appointment.id, status, { notifyClient })}
+            className="px-5 py-2 text-sm font-semibold rounded-lg bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-50"
+          >
+            {saving ? 'Saving…' : 'Save status'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -292,10 +421,14 @@ const AdminDashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [appointmentsPage, setAppointmentsPage] = useState(1);
   const [appointmentsTotal, setAppointmentsTotal] = useState(0);
+  const [appointmentFilter, setAppointmentFilter] = useState('');
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [savingAppointment, setSavingAppointment] = useState(false);
 
   const [caseStudies, setCaseStudies] = useState([]);
   const [caseStudiesPage, setCaseStudiesPage] = useState(1);
   const [caseStudiesTotal, setCaseStudiesTotal] = useState(0);
+  const [editingCaseStudyId, setEditingCaseStudyId] = useState(null);
 
   const [internshipApplications, setInternshipApplications] = useState([]);
   const [internshipPage, setInternshipPage] = useState(1);
@@ -328,11 +461,15 @@ const AdminDashboard = () => {
   }, []);
 
   const fetchAppointments = useCallback(
-    async (page = appointmentsPage) => {
+    async (page = appointmentsPage, status = appointmentFilter) => {
       setIsLoading(true);
       setError('');
       try {
-        const response = await appointmentsService.list({ page, limit: PAGE_SIZE });
+        const response = await appointmentsService.list({
+          page,
+          limit: PAGE_SIZE,
+          status: status || undefined,
+        });
         const { data, totalCount } = response.data;
         setAppointments(Array.isArray(data) ? data : []);
         setAppointmentsTotal(typeof totalCount === 'number' ? totalCount : 0);
@@ -342,7 +479,7 @@ const AdminDashboard = () => {
         setIsLoading(false);
       }
     },
-    [appointmentsPage]
+    [appointmentsPage, appointmentFilter]
   );
 
   const fetchCaseStudies = useCallback(
@@ -396,12 +533,13 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (activeTab === 'overview') fetchStats();
-    else if (activeTab === 'appointments') fetchAppointments(appointmentsPage);
+    else if (activeTab === 'appointments') fetchAppointments(appointmentsPage, appointmentFilter);
     else if (activeTab === 'case-studies') fetchCaseStudies(caseStudiesPage);
     else if (activeTab === 'internship') fetchInternshipApplications(internshipPage, internshipFilter);
   }, [
     activeTab,
     appointmentsPage,
+    appointmentFilter,
     caseStudiesPage,
     internshipPage,
     internshipFilter,
@@ -410,6 +548,41 @@ const AdminDashboard = () => {
     fetchCaseStudies,
     fetchInternshipApplications,
   ]);
+
+  const resetCaseStudyForm = () => {
+    setEditingCaseStudyId(null);
+    setCaseStudyForm({ title: '', summary: '', full_content: '', court_name: '', image_url: '' });
+  };
+
+  const startEditCaseStudy = async (study) => {
+    setActiveTab('case-studies');
+    setEditingCaseStudyId(study.id);
+    setCaseStudyForm({
+      title: study.title || '',
+      summary: study.summary || '',
+      full_content: study.full_content || '',
+      court_name: study.court_name || '',
+      image_url: study.image_url || '',
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Load full content if list payload is incomplete
+    if (!study.full_content) {
+      try {
+        const response = await caseStudiesService.getOne(study.id);
+        const full = response.data;
+        setCaseStudyForm({
+          title: full.title || '',
+          summary: full.summary || '',
+          full_content: full.full_content || '',
+          court_name: full.court_name || '',
+          image_url: full.image_url || '',
+        });
+      } catch {
+        toast.error('Could not load full case study for editing');
+      }
+    }
+  };
 
   const handleCaseStudySubmit = async (e) => {
     e.preventDefault();
@@ -424,16 +597,19 @@ const AdminDashboard = () => {
         ...caseStudyForm,
         image_url: caseStudyForm.image_url?.trim() || null,
       };
-      const response = await caseStudiesService.create(payload);
-      if (response.status === 201 || response.status === 200) {
-        setCaseStudyForm({ title: '', summary: '', full_content: '', court_name: '', image_url: '' });
-        setCaseStudiesPage(1);
-        fetchCaseStudies(1);
-        fetchStats();
+      if (editingCaseStudyId) {
+        await caseStudiesService.update(editingCaseStudyId, payload);
+        toast.success('Case study updated');
+      } else {
+        await caseStudiesService.create(payload);
         toast.success('Case study published');
+        setCaseStudiesPage(1);
       }
+      resetCaseStudyForm();
+      fetchCaseStudies(editingCaseStudyId ? caseStudiesPage : 1);
+      fetchStats();
     } catch (err) {
-      const msg = err?.response?.data?.error || 'Failed to publish case study';
+      const msg = err?.response?.data?.error || (editingCaseStudyId ? 'Failed to update case study' : 'Failed to publish case study');
       setError(msg);
       toast.error(msg);
     } finally {
@@ -441,16 +617,24 @@ const AdminDashboard = () => {
     }
   };
 
-  const updateAppointmentStatus = async (id, status) => {
+  const updateAppointmentStatus = async (id, status, { notifyClient = true } = {}) => {
+    setSavingAppointment(true);
     try {
-      await appointmentsService.updateStatus(id, status);
-      fetchAppointments(appointmentsPage);
+      const response = await appointmentsService.updateStatus(id, status, { notifyClient });
+      const updated = response.data.appointment;
+      setAppointments((prev) => prev.map((a) => (a.id === id ? { ...a, ...updated } : a)));
+      if (selectedAppointment?.id === id) {
+        setSelectedAppointment((prev) => ({ ...prev, ...updated }));
+      }
       fetchStats();
-      toast.success('Status updated');
+      if (response.data.emailSent) toast.success('Status updated — client emailed');
+      else toast.success('Status updated');
     } catch (err) {
       const msg = err?.response?.data?.error || 'Failed to update status';
       setError(msg);
       toast.error(msg);
+    } finally {
+      setSavingAppointment(false);
     }
   };
 
@@ -484,6 +668,7 @@ const AdminDashboard = () => {
     if (!window.confirm('Delete this case study?')) return;
     try {
       await caseStudiesService.remove(id);
+      if (editingCaseStudyId === id) resetCaseStudyForm();
       const nextPage = caseStudies.length === 1 && caseStudiesPage > 1 ? caseStudiesPage - 1 : caseStudiesPage;
       if (nextPage !== caseStudiesPage) setCaseStudiesPage(nextPage);
       else fetchCaseStudies(nextPage);
@@ -633,15 +818,24 @@ const AdminDashboard = () => {
                   <h2 className="text-lg font-semibold text-slate-900 mb-2">Quick actions</h2>
                   <p className="text-sm text-slate-600 mb-4">
                     {internshipStats.new_this_week ?? 0} new internship application(s) this week.
-                    Review pending applications and update their status to notify applicants by email.
+                    Review pending applications and appointments from the tabs above.
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('internship')}
-                    className="px-4 py-2 text-sm font-semibold rounded-lg bg-amber-500 text-white hover:bg-amber-600"
-                  >
-                    Review internship applications
-                  </button>
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('internship')}
+                      className="px-4 py-2 text-sm font-semibold rounded-lg bg-amber-500 text-white hover:bg-amber-600"
+                    >
+                      Review internships
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('appointments')}
+                      className="px-4 py-2 text-sm font-semibold rounded-lg border border-slate-300 text-slate-800 hover:bg-slate-50"
+                    >
+                      Review appointments
+                    </button>
+                  </div>
                 </div>
               </>
             )}
@@ -650,42 +844,82 @@ const AdminDashboard = () => {
 
         {activeTab === 'appointments' && (
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-slate-900 mb-4">Appointment Requests</h2>
+            <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900">Appointment Requests</h2>
+                <p className="text-sm text-slate-600 mt-1">
+                  Review case details and update status. Confirming or cancelling can email the client.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2 mb-6">
+              {['', ...APPOINTMENT_STATUSES].map((filter) => {
+                const label = filter || 'All';
+                const active = appointmentFilter === filter;
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => {
+                      setAppointmentFilter(filter);
+                      setAppointmentsPage(1);
+                    }}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-colors ${
+                      active
+                        ? 'bg-slate-900 text-white border-slate-900'
+                        : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+
             {isLoading ? (
               <p className="text-slate-500 text-sm">Loading…</p>
             ) : appointments.length === 0 ? (
-              <p className="text-slate-500 text-sm">No appointments yet.</p>
+              <p className="text-slate-500 text-sm">No appointments in this category.</p>
             ) : (
               <>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
                     <thead>
                       <tr className="border-b border-slate-200 text-left text-slate-500">
-                        <th className="py-2 pr-4 font-medium">Name</th>
-                        <th className="py-2 pr-4 font-medium">Phone</th>
-                        <th className="py-2 pr-4 font-medium">Email</th>
+                        <th className="py-2 pr-4 font-medium">Client</th>
+                        <th className="py-2 pr-4 font-medium">Preferred</th>
                         <th className="py-2 pr-4 font-medium">Status</th>
-                        <th className="py-2 font-medium">Date</th>
+                        <th className="py-2 pr-4 font-medium">Submitted</th>
+                        <th className="py-2 font-medium">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {appointments.map((a) => (
-                        <tr key={a.id} className="border-b border-slate-100">
-                          <td className="py-3 pr-4 text-slate-900">{a.client_name}</td>
-                          <td className="py-3 pr-4 text-slate-700">{a.phone_number}</td>
-                          <td className="py-3 pr-4 text-slate-700">{a.email}</td>
+                        <tr key={a.id} className="border-b border-slate-100 hover:bg-slate-50/80">
                           <td className="py-3 pr-4">
-                            <select
-                              value={a.status || 'Pending'}
-                              onChange={(e) => updateAppointmentStatus(a.id, e.target.value)}
-                              className="border border-slate-200 rounded px-2 py-1 text-sm bg-white"
-                            >
-                              {APPOINTMENT_STATUSES.map((s) => (
-                                <option key={s} value={s}>{s}</option>
-                              ))}
-                            </select>
+                            <p className="font-medium text-slate-900">{a.client_name}</p>
+                            <p className="text-xs text-slate-500">{a.email}</p>
+                            <p className="text-xs text-slate-500">{a.phone_number}</p>
                           </td>
-                          <td className="py-3 text-slate-600">{formatDate(a.created_at)}</td>
+                          <td className="py-3 pr-4 text-slate-700 whitespace-nowrap">
+                            {formatPreferredDate(a.preferred_date)}
+                          </td>
+                          <td className="py-3 pr-4">
+                            <StatusBadge status={a.status} />
+                          </td>
+                          <td className="py-3 pr-4 text-slate-600 whitespace-nowrap">
+                            {formatDate(a.created_at)}
+                          </td>
+                          <td className="py-3">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedAppointment(a)}
+                              className="text-sm font-semibold text-amber-600 hover:text-amber-700"
+                            >
+                              Review
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -706,7 +940,20 @@ const AdminDashboard = () => {
         {activeTab === 'case-studies' && (
           <div className="space-y-6">
             <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-slate-900 mb-4">Publish Case Study</h2>
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <h2 className="text-xl font-semibold text-slate-900">
+                  {editingCaseStudyId ? 'Edit Case Study' : 'Publish Case Study'}
+                </h2>
+                {editingCaseStudyId && (
+                  <button
+                    type="button"
+                    onClick={resetCaseStudyForm}
+                    className="text-sm font-semibold text-slate-600 hover:text-slate-900"
+                  >
+                    Cancel edit
+                  </button>
+                )}
+              </div>
               <form onSubmit={handleCaseStudySubmit} className="space-y-4">
                 <input
                   className="w-full border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
@@ -746,7 +993,13 @@ const AdminDashboard = () => {
                   disabled={isLoading}
                   className="px-6 py-2 text-sm font-medium bg-slate-900 text-white rounded-lg hover:bg-slate-800 disabled:opacity-50"
                 >
-                  {isLoading ? 'Publishing…' : 'Publish'}
+                  {isLoading
+                    ? editingCaseStudyId
+                      ? 'Saving…'
+                      : 'Publishing…'
+                    : editingCaseStudyId
+                      ? 'Save changes'
+                      : 'Publish'}
                 </button>
               </form>
             </div>
@@ -761,18 +1014,27 @@ const AdminDashboard = () => {
                 <>
                   <ul className="divide-y divide-slate-100">
                     {caseStudies.map((s) => (
-                      <li key={s.id} className="flex justify-between items-center py-3">
-                        <div>
+                      <li key={s.id} className="flex flex-wrap justify-between items-center gap-3 py-3">
+                        <div className="min-w-0">
                           <p className="font-medium text-slate-900">{s.title}</p>
                           <p className="text-xs text-slate-500 mt-0.5">{s.court_name}</p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteCaseStudy(s.id)}
-                          className="text-red-600 text-sm hover:text-red-700 font-medium"
-                        >
-                          Delete
-                        </button>
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => startEditCaseStudy(s)}
+                            className="text-amber-600 text-sm hover:text-amber-700 font-medium"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCaseStudy(s.id)}
+                            className="text-red-600 text-sm hover:text-red-700 font-medium"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -895,6 +1157,15 @@ const AdminDashboard = () => {
           onClose={() => setSelectedApplication(null)}
           onSave={updateInternshipApplication}
           saving={savingApplication}
+        />
+      )}
+
+      {selectedAppointment && (
+        <AppointmentDetailModal
+          appointment={selectedAppointment}
+          onClose={() => setSelectedAppointment(null)}
+          onSave={updateAppointmentStatus}
+          saving={savingAppointment}
         />
       )}
     </div>
