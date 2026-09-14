@@ -42,9 +42,10 @@ function BrandMark({ compact = false, isLight, onClick }) {
   );
 }
 
-function LanguageToggle({ t, i18n, isLight, compact }) {
-  const next = i18n.language === 'hi' ? 'en' : 'hi';
+function LanguageToggle({ t, i18n, isLight }) {
+  const isHi = i18n.language === 'hi';
   const toggleLang = () => {
+    const next = isHi ? 'en' : 'hi';
     i18n.changeLanguage(next);
     window.localStorage.setItem('firm-ui-lang', next);
   };
@@ -53,12 +54,14 @@ function LanguageToggle({ t, i18n, isLight, compact }) {
     <button
       type="button"
       onClick={toggleLang}
-      className={`text-xs font-medium tracking-wide ${
-        isLight ? 'text-muted hover:text-ink' : 'text-slate-400 hover:text-off-white'
-      }`}
+      className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[12px] font-medium"
       aria-label={t('common.toggleLanguage')}
     >
-      {compact ? (i18n.language === 'hi' ? 'EN' : 'हिन्दी') : i18n.language === 'hi' ? 'English / हिन्दी' : 'EN / हिन्दी'}
+      <span className={!isHi ? 'text-accent' : isLight ? 'text-muted' : 'text-slate-500'}>EN</span>
+      <span className={isLight ? 'text-border' : 'text-white/20'} aria-hidden>
+        /
+      </span>
+      <span className={`font-hindi ${isHi ? 'text-accent' : isLight ? 'text-muted' : 'text-slate-500'}`}>हिन्दी</span>
     </button>
   );
 }
@@ -68,7 +71,7 @@ function ThemeToggle({ t, isLight, toggleTheme }) {
     <button
       type="button"
       onClick={toggleTheme}
-      className={`flex h-9 w-9 items-center justify-center rounded-md ${
+      className={`flex h-8 w-8 shrink-0 items-center justify-center ${
         isLight ? 'text-muted hover:text-ink' : 'text-slate-400 hover:text-off-white'
       }`}
       aria-label={isLight ? t('theme.dark') : t('theme.light')}
@@ -95,7 +98,7 @@ function ProfileMenu({ user, isAdmin, isLight, t, open, setOpen, onLogout, menuI
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`flex max-w-[11rem] items-center gap-1.5 text-sm font-medium ${
+        className={`flex max-w-[12rem] items-center gap-1.5 whitespace-nowrap text-sm font-medium ${
           isLight ? 'text-ink' : 'text-off-white'
         }`}
         aria-expanded={open}
@@ -214,8 +217,8 @@ export function Navbar({ isScrolled }) {
     : `${isScrolled ? 'bg-primary/95' : 'bg-primary/90'} border-white/10`;
 
   const linkClass = (isActive) =>
-    `text-[13px] font-medium tracking-wide pb-0.5 ${
-      isActive ? 'text-accent nav-link-active' : isLight ? 'text-ink/75 hover:text-ink' : 'text-slate-300 hover:text-off-white'
+    `whitespace-nowrap text-[13px] font-medium tracking-wide ${
+      isActive ? 'text-accent' : isLight ? 'text-ink/70 hover:text-ink' : 'text-slate-300 hover:text-off-white'
     }`;
 
   return (
@@ -223,11 +226,11 @@ export function Navbar({ isScrolled }) {
       <header className={`fixed top-0 left-0 right-0 z-50 border-b backdrop-blur-md ${shell}`}>
         <nav className="container-premium" aria-label={t('nav.menu')}>
           <div
-            className={`grid items-center gap-4 ${
+            className={`flex items-center justify-between gap-6 lg:gap-10 ${
               isScrolled ? 'h-14' : 'h-16'
-            } grid-cols-[auto_1fr_auto] lg:grid-cols-[minmax(0,1.1fr)_auto_minmax(0,1.1fr)]`}
+            }`}
           >
-            <div className="min-w-0">
+            <div className="shrink-0">
               <span className="hidden sm:block">
                 <BrandMark isLight={isLight} />
               </span>
@@ -236,7 +239,7 @@ export function Navbar({ isScrolled }) {
               </span>
             </div>
 
-            <div className="hidden lg:flex items-center justify-center gap-7">
+            <div className="hidden min-w-0 flex-1 items-center justify-center gap-8 lg:flex">
               {primaryNav.map((link) => (
                 <NavLink key={link.path} to={link.path}>
                   {({ isActive }) => <span className={linkClass(isActive)}>{t(link.key)}</span>}
@@ -249,14 +252,14 @@ export function Navbar({ isScrolled }) {
                   aria-expanded={dropdownOpen}
                   aria-haspopup="menu"
                   aria-controls={resultsMenuId}
-                  className={`flex items-center gap-1 text-[13px] font-medium ${
-                    resultsActive ? 'text-accent nav-link-active' : isLight ? 'text-ink/75 hover:text-ink' : 'text-slate-300 hover:text-off-white'
-                  }`}
+                  className={linkClass(resultsActive)}
                 >
-                  {t('nav.results')}
-                  <svg className={`h-3.5 w-3.5 ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                  <span className="inline-flex items-center gap-1">
+                    {t('nav.results')}
+                    <svg className={`h-3.5 w-3.5 ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
                 </button>
                 <AnimatePresence>
                   {dropdownOpen && (
@@ -294,7 +297,7 @@ export function Navbar({ isScrolled }) {
               </NavLink>
             </div>
 
-            <div className="hidden lg:flex items-center justify-end gap-3 xl:gap-4">
+            <div className="hidden shrink-0 items-center gap-5 lg:flex">
               <LanguageToggle t={t} i18n={i18n} isLight={isLight} />
               <ThemeToggle t={t} isLight={isLight} toggleTheme={toggleTheme} />
               {!authLoading && user ? (
@@ -310,7 +313,7 @@ export function Navbar({ isScrolled }) {
                 />
               ) : (
                 !authLoading && (
-                  <Link to="/login" className={`text-sm ${isLight ? 'text-muted hover:text-ink' : 'text-slate-400 hover:text-off-white'}`}>
+                  <Link to="/login" className={`whitespace-nowrap text-sm ${isLight ? 'text-muted hover:text-ink' : 'text-slate-400 hover:text-off-white'}`}>
                     {t('auth.signIn')}
                   </Link>
                 )
