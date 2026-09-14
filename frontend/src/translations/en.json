@@ -11,6 +11,7 @@
     "contact": "Contact",
     "internship": "Internship",
     "bookConsultation": "Book Consultation",
+    "adminReview": "Admin Review",
     "menu": "Menu",
     "skipToContent": "Skip to main content"
   },
@@ -526,7 +527,7 @@
     "passwordResetSuccess": "Password updated successfully",
     "invalidResetToken": "Invalid or missing reset token",
     "logout": "Log out",
-    "dashboard": "Dashboard"
+    "dashboard": "Admin Review"
   },
   "legal": {
     "disclaimerTitle": "Legal Disclaimer",

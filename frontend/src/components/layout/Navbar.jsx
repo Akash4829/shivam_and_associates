@@ -123,7 +123,7 @@ function AuthControls({ mobile, user, isAdmin, isLight, t, profileRef, profileOp
                   isLight ? 'text-ink hover:bg-navy/5' : 'text-off-white hover:bg-white/5'
                 }`}
               >
-                {t('auth.dashboard')}
+                {t('nav.adminReview')}
               </Link>
             )}
             <button
@@ -351,6 +351,13 @@ export function Navbar({ isScrolled }) {
               <NavLink to="/contact">
                 {({ isActive }) => <span className={linkClass(isActive)}>{t('nav.contact')}</span>}
               </NavLink>
+              {isAdmin && (
+                <NavLink to="/admin">
+                  {({ isActive }) => (
+                    <span className={linkClass(isActive)}>{t('nav.adminReview')}</span>
+                  )}
+                </NavLink>
+              )}
             </motion.div>
 
             <motion.div className="hidden lg:flex items-center gap-3">
@@ -389,12 +396,25 @@ export function Navbar({ isScrolled }) {
                 </span>
               </button>
               {!authLoading && <AuthControls {...authProps} />}
+              {isAdmin && (
+                <Button to="/admin" variant="ghost" className="!py-2.5 !px-4">
+                  {t('nav.adminReview')}
+                </Button>
+              )}
               <Button to="/contact" variant="primary" className="!py-2.5 !px-5">
                 {t('nav.bookConsultation')}
               </Button>
             </motion.div>
 
             <motion.div className="flex items-center gap-2 lg:hidden">
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className="max-w-[9.5rem] truncate rounded-xl border border-accent/40 bg-accent/10 px-2.5 py-2 text-xs font-semibold text-accent"
+                >
+                  {t('nav.adminReview')}
+                </Link>
+              )}
               <button
                 type="button"
                 onClick={toggleLang}
@@ -555,6 +575,21 @@ export function Navbar({ isScrolled }) {
                     </span>
                   )}
                 </NavLink>
+                {isAdmin && (
+                  <NavLink to="/admin" onClick={closeSheet}>
+                    {({ isActive }) => (
+                      <span
+                        className={`block rounded-xl px-4 py-4 text-base font-semibold ${
+                          isActive
+                            ? 'bg-accent/15 text-accent border border-accent/30'
+                            : 'bg-accent/10 text-accent border border-accent/30'
+                        }`}
+                      >
+                        {t('nav.adminReview')}
+                      </span>
+                    )}
+                  </NavLink>
+                )}
               </div>
 
               <motion.div className="mt-6 space-y-3">

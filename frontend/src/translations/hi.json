@@ -11,6 +11,7 @@
     "contact": "संपर्क",
     "internship": "इंटर्नशिप",
     "bookConsultation": "सलाह बुक करें",
+    "adminReview": "एडमिन समीक्षा",
     "menu": "मेनू",
     "skipToContent": "मुख्य सामग्री पर जाएं"
   },
@@ -526,7 +527,7 @@
     "passwordResetSuccess": "पासवर्ड सफलतापूर्वक अपडेट",
     "invalidResetToken": "अमान्य या गायब रीसेट टोकन",
     "logout": "लॉग आउट",
-    "dashboard": "डैशबोर्ड"
+    "dashboard": "एडमिन समीक्षा"
   },
   "legal": {
     "disclaimerTitle": "कानूनी अस्वीकरण",
