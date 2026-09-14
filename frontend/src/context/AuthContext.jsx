@@ -31,6 +31,9 @@ export function AuthProvider({ children }) {
   const fetchUser = useCallback(async () => {
     try {
       const response = await api.get('/api/auth/me');
+      if (response.data?.token && typeof window !== 'undefined') {
+        window.localStorage.setItem('token', response.data.token);
+      }
       if (mountedRef.current) setUser(response.data.user);
       writeSessionHint(true);
       return response.data.user;

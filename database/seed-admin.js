@@ -1,6 +1,7 @@
 const path = require('path');
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
+const { getAdminEmails } = require('../backend/utils/adminEmails');
 
 // Load backend .env when run locally (optional).
 require('dotenv').config({ path: path.join(__dirname, '..', 'backend', '.env') });
@@ -46,6 +47,20 @@ async function seedAdmin() {
       RETURNING id, email, role
     `;
     const userResult = await pool.query(userQuery, ['Administrator', adminEmail.toLowerCase(), passwordHash]);
+
+    const extraAdmins = [...getAdminEmails()].filter((email) => email !== adminEmail.toLowerCase());
+    if (extraAdmins.length > 0) {
+      const promoted = await pool.query(
+        `UPDATE users SET role = 'admin', updated_at = NOW()
+         WHERE lower(email) = ANY($1::text[])
+         RETURNING email, role`,
+        [extraAdmins]
+      );
+      if (promoted.rows.length > 0) {
+        console.log('Promoted existing accounts to admin:');
+        promoted.rows.forEach((row) => console.log(`  ${row.email}`));
+      }
+    }
 
     console.log('Admin seeded successfully in users table:');
     console.log(`  Email:    ${userResult.rows[0].email}`);

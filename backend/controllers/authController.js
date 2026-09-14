@@ -7,6 +7,7 @@ const { JWT_SECRET } = require('../config/jwt');
 const { TOKEN_COOKIE_NAME, getCookieOptions, getClearCookieOptions } = require('../utils/cookies');
 const appleSignin = require('apple-signin-auth');
 const { sendMail } = require('../utils/mail');
+const { isAdminEmail } = require('../utils/adminEmails');
 
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '30d';
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -37,6 +38,17 @@ function setAuthCookie(res, token) {
   res.cookie(TOKEN_COOKIE_NAME, token, getCookieOptions());
 }
 
+async function ensureAdminRole(user) {
+  if (!user || user.role === 'admin' || !isAdminEmail(user.email)) {
+    return user;
+  }
+  const result = await pool.query(
+    `UPDATE users SET role = 'admin', updated_at = NOW() WHERE id = $1 RETURNING *`,
+    [user.id]
+  );
+  return result.rows[0] || user;
+}
+
 async function register(req, res) {
   try {
     const { full_name, email, password } = req.body;
@@ -47,11 +59,13 @@ async function register(req, res) {
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
+    const normalizedEmail = email.toLowerCase();
+    const role = isAdminEmail(normalizedEmail) ? 'admin' : 'user';
     const result = await pool.query(
-      `INSERT INTO users (full_name, email, password_hash, auth_provider, email_verified)
-       VALUES ($1, $2, $3, 'local', FALSE)
+      `INSERT INTO users (full_name, email, password_hash, auth_provider, email_verified, role)
+       VALUES ($1, $2, $3, 'local', FALSE, $4)
        RETURNING *`,
-      [full_name, email.toLowerCase(), passwordHash]
+      [full_name, normalizedEmail, passwordHash, role]
     );
 
     const user = result.rows[0];
@@ -78,7 +92,7 @@ async function login(req, res) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    const user = result.rows[0];
+    let user = result.rows[0];
 
     if (user.auth_provider === 'google' && !user.password_hash) {
       return res.status(401).json({ error: 'This account uses Google Sign-In. Please continue with Google.' });
@@ -89,6 +103,7 @@ async function login(req, res) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
+    user = await ensureAdminRole(user);
     const token = signToken(user);
     setAuthCookie(res, token);
 
@@ -137,11 +152,12 @@ async function googleAuth(req, res) {
 
     let user;
     if (result.rows.length === 0) {
+      const role = isAdminEmail(email) ? 'admin' : 'user';
       const insert = await pool.query(
-        `INSERT INTO users (full_name, email, google_id, avatar_url, auth_provider, email_verified)
-         VALUES ($1, $2, $3, $4, 'google', TRUE)
+        `INSERT INTO users (full_name, email, google_id, avatar_url, auth_provider, email_verified, role)
+         VALUES ($1, $2, $3, $4, 'google', TRUE, $5)
          RETURNING *`,
-        [name, email.toLowerCase(), sub, picture || null]
+        [name, email.toLowerCase(), sub, picture || null, role]
       );
       user = insert.rows[0];
     } else {
@@ -158,6 +174,7 @@ async function googleAuth(req, res) {
       }
     }
 
+    user = await ensureAdminRole(user);
     const token = signToken(user);
     setAuthCookie(res, token);
 
@@ -220,11 +237,12 @@ async function appleAuth(req, res) {
 
     let user;
     if (result.rows.length === 0) {
+      const role = isAdminEmail(email) ? 'admin' : 'user';
       const insert = await pool.query(
-        `INSERT INTO users (full_name, email, apple_id, auth_provider, email_verified)
-         VALUES ($1, $2, $3, 'apple', TRUE)
+        `INSERT INTO users (full_name, email, apple_id, auth_provider, email_verified, role)
+         VALUES ($1, $2, $3, 'apple', TRUE, $4)
          RETURNING *`,
-        [fullName, email, sub]
+        [fullName, email, sub, role]
       );
       user = insert.rows[0];
     } else {
@@ -240,6 +258,7 @@ async function appleAuth(req, res) {
       user = updated.rows[0];
     }
 
+    user = await ensureAdminRole(user);
     const token = signToken(user);
     setAuthCookie(res, token);
 
@@ -265,7 +284,14 @@ async function me(req, res) {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
-    res.status(200).json({ user: sanitizeUser(result.rows[0]) });
+    const user = await ensureAdminRole(result.rows[0]);
+    const payload = { user: sanitizeUser(user) };
+    if (user.role === 'admin' && req.user.role !== 'admin') {
+      const token = signToken(user);
+      setAuthCookie(res, token);
+      payload.token = token;
+    }
+    res.status(200).json(payload);
   } catch (error) {
     console.error('Me endpoint error:', error);
     res.status(500).json({ error: 'Internal server error' });
