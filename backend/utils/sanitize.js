@@ -20,7 +20,14 @@ function sanitizeFields(body, fields) {
   return sanitized;
 }
 
-const APPOINTMENT_FIELDS = ['client_name', 'phone_number', 'email', 'case_summary'];
+const APPOINTMENT_FIELDS = [
+  'client_name',
+  'phone_number',
+  'email',
+  'case_summary',
+  'practice_area',
+  'preferred_time',
+];
 const INTERNSHIP_FIELDS = [
   'applicant_name',
   'email',

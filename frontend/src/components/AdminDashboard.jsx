@@ -797,7 +797,7 @@ const AdminDashboard = () => {
                       </button>
                     </div>
                     {(stats?.recentAppointments || []).length === 0 ? (
-                      <p className="text-sm text-slate-500">No appointments yet.</p>
+                      <p className="text-sm text-slate-500">No consultation requests yet.</p>
                     ) : (
                       <ul className="divide-y divide-slate-100">
                         {stats.recentAppointments.map((a) => (
@@ -880,7 +880,7 @@ const AdminDashboard = () => {
             {isLoading ? (
               <p className="text-slate-500 text-sm">Loading…</p>
             ) : appointments.length === 0 ? (
-              <p className="text-slate-500 text-sm">No appointments in this category.</p>
+              <p className="text-slate-500 text-sm">No consultation requests in this category.</p>
             ) : (
               <>
                 <div className="overflow-x-auto">

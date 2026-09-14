@@ -2,7 +2,8 @@
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- Legacy admin credentials (used for admin panel bootstrap)
+-- Legacy table retained for older deployments. Runtime auth uses `users.role`.
+-- The API does not query this table.
 CREATE TABLE admin_users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(255) UNIQUE NOT NULL,

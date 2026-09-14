@@ -31,6 +31,14 @@ const appointmentValidators = [
     .optional({ checkFalsy: true })
     .isISO8601()
     .withMessage('Preferred date must be a valid date'),
+  body('practice_area')
+    .optional({ checkFalsy: true })
+    .isLength({ max: 120 })
+    .withMessage('Practice area must not exceed 120 characters'),
+  body('preferred_time')
+    .optional({ checkFalsy: true })
+    .isLength({ max: 20 })
+    .withMessage('Preferred time must not exceed 20 characters'),
   handleValidationErrors,
 ];
 

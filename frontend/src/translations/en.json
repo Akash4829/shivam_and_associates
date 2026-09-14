@@ -5,38 +5,47 @@
     "practiceAreas": "Practice Areas",
     "results": "Results",
     "successStories": "Success Stories",
-    "caseResults": "Case Results",
+    "caseResults": "Case Studies",
     "testimonials": "Testimonials",
     "about": "About",
     "contact": "Contact",
     "internship": "Internship",
     "bookConsultation": "Book Consultation",
-    "adminReview": "Admin Review",
+    "adminDashboard": "Admin Dashboard",
     "menu": "Menu",
     "skipToContent": "Skip to main content"
   },
   "hero": {
     "kicker": "Mishra Juris Chamber",
-    "title": "Trusted",
-    "titleHighlight": "Legal Counsel",
-    "subtitle": "Providing reliable legal representation before the High Court and other courts with integrity, dedication, and excellence.",
-    "ctaPrimary": "Book Consultation",
+    "title": "Trusted Legal Counsel",
+    "titleHighlight": "When It Matters Most",
+    "subtitle": "Providing reliable legal representation before the High Court and other courts with integrity, dedication, and strategic focus.",
+    "ctaPrimary": "Book a Consultation",
     "ctaWhatsApp": "WhatsApp Now",
-    "ctaSecondary": "Practice Areas",
+    "ctaSecondary": "Explore Practice Areas",
     "statYears": "Years of professional experience",
     "statCases": "Cases successfully represented",
     "statClients": "Clients served",
     "statBenches": "High Court benches served",
     "trustBadge": "Allahabad High Court & Lucknow Bench",
     "scroll": "Scroll to explore",
-    "floatingTagline": "High Court · Civil litigation · Family law · Property disputes"
+    "floatingTagline": "High Court · Civil litigation · Family law · Property disputes",
+    "imageAlt": "Scales of justice at the courthouse"
   },
   "trust": {
     "google": "Google rating",
     "cases": "Cases represented",
     "clients": "Clients served",
     "years": "Years of experience",
-    "benches": "High Court benches"
+    "benches": "High Court benches",
+    "stripPractice": "Legal Practice",
+    "stripPracticeDesc": "Focused representation across core litigation matters.",
+    "stripCourt": "High Court",
+    "stripCourtDesc": "Allahabad High Court and Lucknow Bench.",
+    "stripStrategy": "Strategic Counsel",
+    "stripStrategyDesc": "Clear options before you commit to a course.",
+    "stripClient": "Client-Focused",
+    "stripClientDesc": "Direct communication and measured advocacy."
   },
   "stats": {
     "years": "Years of professional experience",
@@ -46,8 +55,8 @@
   },
   "whyChoose": {
     "kicker": "Why choose us",
-    "title": "Legal counsel built for how you live today",
-    "subtitle": "Modern communication, transparent process, and courtroom discipline — without the old-firm friction.",
+    "title": "Counsel that is clear, careful, and courtroom-ready",
+    "subtitle": "A measured approach to strategy, communication, and representation.",
     "fast": "Fast response",
     "fastDesc": "Urgent matters triaged within hours, not days.",
     "confidential": "Confidential consultation",
@@ -196,20 +205,24 @@
     "send": "Send"
   },
   "form": {
+    "title": "Request a consultation",
+    "confidential": "Please do not submit confidential or sensitive legal documents through this form.",
     "step1": "Your details",
     "step2": "Your matter",
     "step3": "Schedule",
     "name": "Full name",
     "phone": "Phone number",
     "email": "Email address",
-    "caseType": "Type of matter",
-    "caseSummary": "Brief description",
+    "caseType": "Practice area",
+    "caseTypePlaceholder": "Select if known",
+    "caseSummary": "Brief description of matter",
     "preferredDate": "Preferred date",
-    "submit": "Submit request",
+    "preferredTime": "Preferred time (optional)",
+    "submit": "Request Consultation",
     "next": "Continue",
     "back": "Back",
     "successTitle": "Request received",
-    "successDesc": "Thank you. We'll contact you within 24 hours.",
+    "successDesc": "Your consultation request has been received. We will contact you shortly.",
     "submitAnother": "Submit another request",
     "errors": {
       "name": "Name is required",
@@ -454,6 +467,22 @@
     "internship": "Careers & Internship",
     "internshipDesc": "Apply for a focused, mentored internship at Mishra Juris Chamber."
   },
+  "homeAbout": {
+    "title": "About Adv. Shivam Mishra",
+    "body": "The chamber appears before the Allahabad High Court and the Lucknow Bench, with a practice focused on criminal, civil, family, and property matters. The approach is straightforward: understand the brief, explain the options, and represent the client with discipline.",
+    "cta": "Read more"
+  },
+  "homeServices": {
+    "title": "How the chamber works",
+    "subtitle": "Consultation, preparation, and courtroom representation — distinct from the areas of law we practise.",
+    "viewAll": "View services"
+  },
+  "notFound": {
+    "kicker": "404",
+    "title": "Page not found",
+    "body": "The page you are looking for does not exist or has been moved.",
+    "home": "Back to home"
+  },
   "admin": {
     "dashboard": "Admin Dashboard",
     "appointments": "Appointment Requests",
@@ -527,7 +556,7 @@
     "passwordResetSuccess": "Password updated successfully",
     "invalidResetToken": "Invalid or missing reset token",
     "logout": "Log out",
-    "dashboard": "Admin Review"
+    "dashboard": "Admin Dashboard"
   },
   "legal": {
     "disclaimerTitle": "Legal Disclaimer",

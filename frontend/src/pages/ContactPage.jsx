@@ -10,7 +10,7 @@ import Icon from '../components/ui/Icons';
 import Modal from '../components/ui/Modal';
 import ConsultationForm from '../components/forms/ConsultationForm';
 import { images } from '../lib/images';
-import { SITE } from '../constants/site';
+import { SITE, legalServiceSchema, buildWhatsAppUrl } from '../constants/site';
 import SocialLinks from '../components/ui/SocialLinks';
 import { useThemeMode } from '../context/ThemeContext';
 import { fadeUp, staggerContainer } from '../animations/variants';
@@ -52,24 +52,9 @@ function ContactPage() {
   const isLight = theme === 'light';
   const [bookingOpen, setBookingOpen] = useState(false);
 
-  const localBusiness = {
-    '@context': 'https://schema.org',
-    '@type': 'LegalService',
-    name: SITE.name,
-    image: images.building,
-    telephone: SITE.phone,
-    email: SITE.email,
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: SITE.address,
-      addressLocality: 'Lucknow',
-      addressRegion: 'Uttar Pradesh',
-      postalCode: '211001',
-      addressCountry: 'IN',
-    },
-    openingHours: 'Mo-Su 09:00-21:30',
-    areaServed: 'IN',
-  };
+  const localBusiness = legalServiceSchema({
+    url: typeof window !== 'undefined' ? window.location.origin : '',
+  });
 
   return (
     <>
@@ -131,6 +116,14 @@ function ContactPage() {
                   href={`mailto:${SITE.email}`}
                   label={t('contact.send')}
                 />
+                <ChannelCard
+                  icon="device"
+                  title="WhatsApp"
+                  value={SITE.whatsappDisplay}
+                  href={buildWhatsAppUrl(t)}
+                  label="WhatsApp"
+                  onClick={() => events.ctaWhatsapp()}
+                />
               </div>
 
               <GlassCard className="overflow-hidden !p-0">
@@ -144,7 +137,7 @@ function ContactPage() {
                 <p className={`text-sm font-medium ${isLight ? 'text-ink' : 'text-off-white'}`}>
                   {t('contact.office')}
                 </p>
-                <p className={`text-sm ${isLight ? 'text-muted' : 'text-slate-300'}`}>{SITE.address}</p>
+                <p className={`text-sm ${isLight ? 'text-muted' : 'text-slate-300'}`}>{SITE.location.display}</p>
                 <p className={`text-xs ${isLight ? 'text-muted' : 'text-slate-500'}`}>{SITE.hours}</p>
                 <div className={`grid grid-cols-1 gap-2 pt-1 text-sm ${isLight ? 'text-muted' : 'text-slate-400'}`}>
                   <p>{t('contact.response')}: {SITE.responseTime}</p>

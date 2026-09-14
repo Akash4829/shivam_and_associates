@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useThemeMode } from '../../context/ThemeContext';
 import Icon from './Icons';
@@ -23,26 +23,25 @@ export function BentoCard({
 }) {
   const { theme } = useThemeMode();
   const isLight = theme === 'light';
-  const reduceMotion = useReducedMotion();
 
   const borderCls = accentBorder
     ? isLight
       ? featured
-        ? 'border-accent/50 bg-white shadow-glow-accent'
-        : 'border-navy/10 bg-white hover:border-accent/40'
+        ? 'border-accent/40 bg-white'
+        : 'border-border bg-white hover:border-accent/40'
       : featured
-        ? 'border-accent/40 bg-white/[0.05] shadow-glow-accent'
-        : 'border-white/[0.08] bg-white/[0.03] hover:border-accent/30'
+        ? 'border-accent/40 bg-secondary'
+        : 'border-white/10 bg-secondary hover:border-accent/30'
     : '';
   const activeCls = active ? '!border-accent/60 shadow-glow-accent' : '';
 
   const inner = (
     <motion.div
       inherit={false}
-      whileHover={reduceMotion ? undefined : { y: -4 }}
+      whileHover={undefined}
       transition={{ duration: 0.35 }}
       onClick={onClick}
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-500 hover:shadow-glow-accent ${borderCls} ${activeCls} ${
+      className={`group relative flex h-full flex-col overflow-hidden rounded-xl border transition-colors ${borderCls} ${activeCls} ${
         image ? 'p-0' : 'p-6'
       } ${onClick || to || href ? 'cursor-pointer' : ''}`}
     >
@@ -132,10 +131,6 @@ export function BentoCard({
           </div>
         </div>
       )}
-      <div
-        className="pointer-events-none absolute inset-px rounded-2xl bg-gradient-to-br from-accent/0 via-accent/0 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        aria-hidden
-      />
     </motion.div>
   );
 

@@ -34,11 +34,6 @@ function TestimonialsPage() {
     '@context': 'https://schema.org',
     '@type': 'LegalService',
     name: SITE.name,
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      reviewCount: testimonials.length + 50,
-    },
     review: testimonials.map((it) => ({
       '@type': 'Review',
       author: { '@type': 'Person', name: it.name },

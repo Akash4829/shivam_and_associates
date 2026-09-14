@@ -183,7 +183,7 @@ async function googleAuth(req, res) {
       const clientUrl = (process.env.CLIENT_URL || 'http://localhost:3000').replace(/\/+$/, '');
       const next = safeRedirectPath(req.body.state);
       const destination = user.role === 'admin' ? '/admin' : next;
-      const params = new URLSearchParams({ signed_in: '1', token });
+      const params = new URLSearchParams({ signed_in: '1' });
       return res.redirect(302, `${clientUrl}${destination}?${params.toString()}`);
     }
 

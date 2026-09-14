@@ -68,7 +68,7 @@ app.use(
       return callback(err);
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     optionsSuccessStatus: 204,
   })
@@ -82,14 +82,27 @@ app.use(
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", 'https://accounts.google.com', 'https://apis.google.com'],
             scriptSrcElem: ["'self'", 'https://accounts.google.com', 'https://apis.google.com'],
-            styleSrc: ["'self'", "'unsafe-inline'", 'https://accounts.google.com'],
+            styleSrc: [
+              "'self'",
+              "'unsafe-inline'",
+              'https://accounts.google.com',
+              'https://fonts.googleapis.com',
+            ],
             imgSrc: ["'self'", 'data:', 'https:'],
             connectSrc: ["'self'", 'https://accounts.google.com', 'https://www.googleapis.com'],
-            frameSrc: ["'self'", 'https://accounts.google.com'],
-            fontSrc: ["'self'", 'https:', 'data:'],
+            frameSrc: [
+              "'self'",
+              'https://accounts.google.com',
+              'https://www.google.com',
+              'https://maps.google.com',
+              'https://calendly.com',
+              'https://assets.calendly.com',
+            ],
+            fontSrc: ["'self'", 'data:', 'https://fonts.gstatic.com', 'https://fonts.googleapis.com'],
             objectSrc: ["'none'"],
             baseUri: ["'self'"],
             formAction: ["'self'"],
+            frameAncestors: ["'none'"],
             upgradeInsecureRequests: [],
           },
         }
@@ -141,8 +154,6 @@ app.use((err, _req, res, _next) => {
   if (err.message === 'Not allowed by CORS') {
     return res.status(403).json({
       error: 'Origin not allowed',
-      origin: err.blockedOrigin || null,
-      allowed: allowedOrigins,
     });
   }
   if (err instanceof Error && err.message === 'Only PDF or DOC/DOCX files are allowed') {

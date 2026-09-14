@@ -23,7 +23,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const redirectPath = getRedirectPath(location);
-  const isProtectedRedirect = redirectPath === '/contact' || redirectPath === '/internship';
+  const isProtectedRedirect = redirectPath === '/internship';
 
   useEffect(() => {
     const authError = new URLSearchParams(location.search).get('auth_error');

@@ -21,14 +21,22 @@ const createAppointment = async (req, res) => {
       email,
       case_summary = null,
       preferred_date = null,
+      practice_area = null,
+      preferred_time = null,
     } = body;
+
+    const summaryParts = [];
+    if (practice_area) summaryParts.push(`Practice area: ${practice_area}`);
+    if (preferred_time) summaryParts.push(`Preferred time: ${preferred_time}`);
+    if (case_summary) summaryParts.push(case_summary);
+    const storedSummary = summaryParts.length ? summaryParts.join('\n') : null;
 
     const query = `
       INSERT INTO appointments (client_name, phone_number, email, case_summary, preferred_date)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING id, client_name, phone_number, email, preferred_date, status, created_at
     `;
-    const values = [client_name, phone_number, email, case_summary, preferred_date || null];
+    const values = [client_name, phone_number, email, storedSummary, preferred_date || null];
     const result = await pool.query(query, values);
 
     // FIRM_EMAIL = where alerts are delivered. SMTP_USER = Gmail account that sends them.
@@ -49,7 +57,7 @@ const createAppointment = async (req, res) => {
         <p><strong>Email:</strong> ${escapeHtml(email)}</p>
         <p><strong>Preferred Date:</strong> ${escapeHtml(preferred_date) || 'Not specified'}</p>
         <p><strong>Case Summary:</strong></p>
-        <p>${escapeHtml(case_summary) || 'No case summary provided'}</p>
+        <p>${escapeHtml(storedSummary) || 'No case summary provided'}</p>
         <hr>
         <p><em>Automated notification from the firm website.</em></p>
       `,
@@ -62,11 +70,11 @@ const createAppointment = async (req, res) => {
     }
 
     res.status(201).json({
-      message: 'Appointment created successfully',
-      appointment: result.rows[0],
-      emailSent,
-      emailError,
-      notifiedTo: notifyTo,
+      message: 'Your consultation request has been received. We will contact you shortly.',
+      appointment: {
+        id: result.rows[0].id,
+        status: result.rows[0].status,
+      },
     });
   } catch (error) {
     console.error('Error creating appointment:', error);

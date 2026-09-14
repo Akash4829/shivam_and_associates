@@ -1,38 +1,24 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
-import { SITE } from '../constants/site';
+import { legalServiceSchema } from '../constants/site';
 import HeroSection from '../components/sections/home/HeroSection';
 import {
   TrustBar,
   PracticeAreasBento,
+  AboutAdvocate,
+  HomeServices,
+  WhyChooseUs,
+  CaseResults,
   TestimonialsSection,
   FinalCTA,
 } from '../components/sections/home/HomeSections';
-
-const SITE_URL = typeof window !== 'undefined' ? window.location.origin : 'https://shivammishraassociates.com';
 
 function HomePage() {
   const { t, i18n } = useTranslation();
   const title = t('meta.home');
   const description = t('meta.homeDesc');
-
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'LegalService',
-    name: SITE.name,
-    description,
-    url: SITE_URL,
-    telephone: SITE.phone,
-    email: SITE.email,
-    areaServed: 'IN',
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'Lucknow',
-      addressRegion: 'Uttar Pradesh',
-      addressCountry: 'IN',
-    },
-  };
+  const url = typeof window !== 'undefined' ? window.location.origin : 'https://shivammishraassociates.com';
 
   return (
     <>
@@ -40,21 +26,23 @@ function HomePage() {
         <html lang={i18n.language === 'hi' ? 'hi' : 'en'} />
         <title>{title}</title>
         <meta name="description" content={description} />
-        <link rel="canonical" href={SITE_URL} />
+        <link rel="canonical" href={url} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={SITE_URL} />
+        <meta property="og:url" content={url} />
         <meta property="og:locale" content={i18n.language === 'hi' ? 'hi_IN' : 'en_IN'} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
-        <script type="application/ld+json">{JSON.stringify(schema)}</script>
+        <script type="application/ld+json">{JSON.stringify(legalServiceSchema({ description, url }))}</script>
       </Helmet>
 
       <HeroSection />
       <TrustBar />
       <PracticeAreasBento />
+      <AboutAdvocate />
+      <HomeServices />
+      <WhyChooseUs />
+      <CaseResults />
       <TestimonialsSection />
       <FinalCTA />
     </>

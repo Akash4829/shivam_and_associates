@@ -11,7 +11,7 @@ import { fadeUp, staggerContainer } from '../animations/variants';
 import { useThemeMode } from '../context/ThemeContext';
 import { aboutValues } from '../data/services';
 import { journeySteps } from '../data/practiceAreas';
-import { SITE } from '../constants/site';
+import { legalServiceSchema } from '../constants/site';
 
 function AboutPage() {
   const { t, i18n } = useTranslation();
@@ -30,22 +30,7 @@ function AboutPage() {
         <meta property="og:title" content={t('meta.about')} />
         <meta property="og:description" content={t('meta.aboutDesc')} />
         <script type="application/ld+json">
-          {JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'LegalService',
-            name: SITE.name,
-            description: t('meta.aboutDesc'),
-            url: typeof window !== 'undefined' ? window.location.origin : '',
-            telephone: SITE.phone,
-            email: SITE.email,
-            address: {
-              '@type': 'PostalAddress',
-              streetAddress: SITE.address,
-              addressLocality: 'Lucknow',
-              addressRegion: 'Uttar Pradesh',
-              addressCountry: 'IN',
-            },
-          })}
+          {JSON.stringify(legalServiceSchema({ description: t('meta.aboutDesc') }))}
         </script>
       </Helmet>
 

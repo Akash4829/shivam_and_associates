@@ -1,62 +1,30 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { appointmentsService } from '../../services/api';
 import { events } from '../../services/analytics';
-import GlassCard from '../ui/GlassCard';
 import Button from '../ui/Button';
-import { easePremium } from '../../animations/variants';
 import { useThemeMode } from '../../context/ThemeContext';
-
-function FloatingInput({ id, label, error, children }) {
-  const [focused, setFocused] = useState(false);
-  const hasValue = children.props.value?.length > 0;
-
-  return (
-    <motion.div className="relative">
-      <label
-        htmlFor={id}
-        className={`floating-label ${focused || hasValue ? 'floating-label-active' : ''}`}
-      >
-        {label}
-      </label>
-      {React.cloneElement(children, {
-        id,
-        onFocus: (e) => {
-          setFocused(true);
-          children.props.onFocus?.(e);
-        },
-        onBlur: (e) => {
-          setFocused(false);
-          children.props.onBlur?.(e);
-        },
-      })}
-      {error && (
-        <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="mt-1.5 text-sm text-red-400">
-          {error}
-        </motion.p>
-      )}
-    </motion.div>
-  );
-}
+import { practiceAreas } from '../../data/practiceAreas';
 
 export function ConsultationForm() {
   const { t } = useTranslation();
   const { theme } = useThemeMode();
   const isLight = theme === 'light';
   const inputCls = isLight ? 'input-premium-light' : 'input-premium';
+  const labelCls = `mb-1.5 block text-sm font-medium ${isLight ? 'text-ink' : 'text-off-white'}`;
 
-  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [emailNotice, setEmailNotice] = useState(null);
   const [errors, setErrors] = useState({});
   const [data, setData] = useState({
     client_name: '',
     phone_number: '',
     email: '',
+    practice_area: '',
     case_summary: '',
     preferred_date: '',
+    preferred_time: '',
+    website: '',
   });
 
   const set = (name, value) => {
@@ -64,43 +32,36 @@ export function ConsultationForm() {
     if (errors[name]) setErrors((e) => ({ ...e, [name]: '' }));
   };
 
-  const validateStep = () => {
+  const validate = () => {
     const e = {};
-    if (step === 1) {
-      if (!data.client_name.trim()) e.client_name = t('form.errors.name');
-      const digits = data.phone_number.replace(/\D/g, '');
-      const normalized = digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits;
-      if (!/^[6-9]\d{9}$/.test(normalized)) e.phone_number = t('form.errors.phone');
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) e.email = t('form.errors.email');
-    }
-    if (step === 2) {
-      if (!data.case_summary.trim()) e.case_summary = t('form.errors.summary');
-      else if (data.case_summary.length > 2000) e.case_summary = t('form.errors.summary');
-    }
+    if (!data.client_name.trim()) e.client_name = t('form.errors.name');
+    const digits = data.phone_number.replace(/\D/g, '');
+    const normalized = digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits;
+    if (!/^[6-9]\d{9}$/.test(normalized)) e.phone_number = t('form.errors.phone');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) e.email = t('form.errors.email');
+    if (data.case_summary.length > 2000) e.case_summary = t('form.errors.summary');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
-  const submit = async () => {
-    if (!validateStep()) return;
+  const submit = async (event) => {
+    event.preventDefault();
+    if (!validate()) return;
     setLoading(true);
     try {
       const digits = data.phone_number.replace(/\D/g, '');
       const normalizedPhone =
         digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits;
-      const payload = {
-        ...data,
+      await appointmentsService.create({
+        client_name: data.client_name.trim(),
         phone_number: normalizedPhone,
-        case_summary: data.case_summary || undefined,
+        email: data.email.trim(),
+        practice_area: data.practice_area || undefined,
+        case_summary: data.case_summary.trim() || undefined,
         preferred_date: data.preferred_date || undefined,
-      };
-      const response = await appointmentsService.create(payload);
-      setEmailNotice(
-        response?.data?.emailSent
-          ? null
-          : response?.data?.emailError ||
-              'Request saved, but the notification email could not be sent. Check admin appointments.'
-      );
+        preferred_time: data.preferred_time || undefined,
+        website: data.website,
+      });
       setSubmitted(true);
       events.formSubmit('consultation');
     } catch (err) {
@@ -108,7 +69,7 @@ export function ConsultationForm() {
         err?.response?.data?.errors?.[0]?.message ||
         err?.response?.data?.error ||
         t('form.errors.submit');
-      setErrors({ submit: apiError });
+      setErrors({ submit: apiError === 'Access token required' ? t('form.errors.submit') : apiError });
     } finally {
       setLoading(false);
     }
@@ -116,90 +77,173 @@ export function ConsultationForm() {
 
   if (submitted) {
     return (
-      <GlassCard className="p-10 text-center">
-        <motion.div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-success/20 text-success text-2xl">✓</motion.div>
-        <h2 className={`text-xl font-semibold ${isLight ? 'text-ink' : 'text-off-white'}`}>{t('form.successTitle')}</h2>
-        <p className={`mt-3 text-sm ${isLight ? 'text-muted' : 'text-slate-400'}`}>{t('form.successDesc')}</p>
-        {emailNotice && (
-          <p className="mt-4 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-            {emailNotice}
-          </p>
-        )}
-        <Button className="mt-8" onClick={() => { setSubmitted(false); setEmailNotice(null); setStep(1); setData({ client_name: '', phone_number: '', email: '', case_summary: '', preferred_date: '' }); }}>
+      <div className={`rounded-xl border p-8 text-center ${isLight ? 'border-border bg-white' : 'border-white/10 bg-secondary'}`}>
+        <p className="text-accent text-sm font-semibold uppercase tracking-wider">{t('form.successTitle')}</p>
+        <p className={`mt-3 text-base ${isLight ? 'text-ink' : 'text-off-white'}`}>{t('form.successDesc')}</p>
+        <Button
+          className="mt-6"
+          onClick={() => {
+            setSubmitted(false);
+            setData({
+              client_name: '',
+              phone_number: '',
+              email: '',
+              practice_area: '',
+              case_summary: '',
+              preferred_date: '',
+              preferred_time: '',
+              website: '',
+            });
+          }}
+        >
           {t('form.submitAnother')}
         </Button>
-      </GlassCard>
+      </div>
     );
   }
 
   return (
-    <GlassCard className="p-6 sm:p-8">
-      <motion.div className="flex gap-2 mb-8">
-        {[1, 2, 3].map((s) => (
-          <motion.div key={s} className={`h-1 flex-1 rounded-full transition-colors ${s <= step ? 'bg-accent' : 'bg-white/10'}`} />
-        ))}
-      </motion.div>
-      <p className="text-xs text-accent font-semibold uppercase tracking-wider mb-6">
-        {t(`form.step${step}`)}
-      </p>
+    <form
+      onSubmit={submit}
+      className={`space-y-4 rounded-xl border p-6 sm:p-8 ${isLight ? 'border-border bg-white' : 'border-white/10 bg-secondary'}`}
+      noValidate
+    >
+      <div>
+        <h2 className={`font-heading text-xl ${isLight ? 'text-ink' : 'text-off-white'}`}>{t('form.title')}</h2>
+        <p className={`mt-1 text-sm ${isLight ? 'text-muted' : 'text-slate-400'}`}>{t('form.confidential')}</p>
+      </div>
 
-      <AnimatePresence mode="wait">
-        <motion.form
-          key={step}
-          initial={{ opacity: 0, x: 12 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -12 }}
-          transition={{ duration: 0.3, ease: easePremium }}
-          onSubmit={(e) => e.preventDefault()}
-          className="space-y-5"
+      {errors.submit && (
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+          {errors.submit}
+        </p>
+      )}
+
+      <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden>
+        <label htmlFor="website">Website</label>
+        <input
+          id="website"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          value={data.website}
+          onChange={(e) => set('website', e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="client_name" className={labelCls}>
+          {t('form.name')} *
+        </label>
+        <input
+          id="client_name"
+          className={inputCls}
+          value={data.client_name}
+          onChange={(e) => set('client_name', e.target.value)}
+          autoComplete="name"
+          required
+        />
+        {errors.client_name && <p className="mt-1 text-sm text-red-600">{errors.client_name}</p>}
+      </div>
+
+      <div>
+        <label htmlFor="phone_number" className={labelCls}>
+          {t('form.phone')} *
+        </label>
+        <input
+          id="phone_number"
+          className={inputCls}
+          value={data.phone_number}
+          onChange={(e) => set('phone_number', e.target.value)}
+          autoComplete="tel"
+          inputMode="tel"
+          required
+        />
+        {errors.phone_number && <p className="mt-1 text-sm text-red-600">{errors.phone_number}</p>}
+      </div>
+
+      <div>
+        <label htmlFor="email" className={labelCls}>
+          {t('form.email')} *
+        </label>
+        <input
+          id="email"
+          type="email"
+          className={inputCls}
+          value={data.email}
+          onChange={(e) => set('email', e.target.value)}
+          autoComplete="email"
+          required
+        />
+        {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+      </div>
+
+      <div>
+        <label htmlFor="practice_area" className={labelCls}>
+          {t('form.caseType')}
+        </label>
+        <select
+          id="practice_area"
+          className={inputCls}
+          value={data.practice_area}
+          onChange={(e) => set('practice_area', e.target.value)}
         >
-          {errors.submit && <p className="text-sm text-red-400 p-3 rounded-xl bg-red-400/10">{errors.submit}</p>}
+          <option value="">{t('form.caseTypePlaceholder')}</option>
+          {practiceAreas.map((area) => (
+            <option key={area.id} value={t(area.titleKey)}>
+              {t(area.titleKey)}
+            </option>
+          ))}
+        </select>
+      </div>
 
-          {step === 1 && (
-            <>
-              <FloatingInput id="client_name" label={`${t('form.name')} *`} error={errors.client_name}>
-                <input className={inputCls} value={data.client_name} onChange={(e) => set('client_name', e.target.value)} autoComplete="name" />
-              </FloatingInput>
-              <FloatingInput id="phone_number" label={`${t('form.phone')} *`} error={errors.phone_number}>
-                <input className={inputCls} value={data.phone_number} onChange={(e) => set('phone_number', e.target.value)} autoComplete="tel" />
-              </FloatingInput>
-              <FloatingInput id="email" label={`${t('form.email')} *`} error={errors.email}>
-                <input type="email" className={inputCls} value={data.email} onChange={(e) => set('email', e.target.value)} autoComplete="email" />
-              </FloatingInput>
-            </>
-          )}
+      <div>
+        <label htmlFor="case_summary" className={labelCls}>
+          {t('form.caseSummary')}
+        </label>
+        <textarea
+          id="case_summary"
+          className={`${inputCls} min-h-[120px] resize-y`}
+          rows={5}
+          maxLength={2000}
+          value={data.case_summary}
+          onChange={(e) => set('case_summary', e.target.value)}
+        />
+        {errors.case_summary && <p className="mt-1 text-sm text-red-600">{errors.case_summary}</p>}
+      </div>
 
-          {step === 2 && (
-            <FloatingInput id="case_summary" label={`${t('form.caseSummary')} *`} error={errors.case_summary}>
-              <textarea className={`${inputCls} min-h-[140px] resize-none`} rows={5} value={data.case_summary} onChange={(e) => set('case_summary', e.target.value)} />
-            </FloatingInput>
-          )}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="preferred_date" className={labelCls}>
+            {t('form.preferredDate')}
+          </label>
+          <input
+            id="preferred_date"
+            type="date"
+            className={inputCls}
+            value={data.preferred_date}
+            min={new Date().toISOString().split('T')[0]}
+            onChange={(e) => set('preferred_date', e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor="preferred_time" className={labelCls}>
+            {t('form.preferredTime')}
+          </label>
+          <input
+            id="preferred_time"
+            type="time"
+            className={inputCls}
+            value={data.preferred_time}
+            onChange={(e) => set('preferred_time', e.target.value)}
+          />
+        </div>
+      </div>
 
-          {step === 3 && (
-            <FloatingInput id="preferred_date" label={t('form.preferredDate')}>
-              <input type="date" className={inputCls} value={data.preferred_date} min={new Date().toISOString().split('T')[0]} onChange={(e) => set('preferred_date', e.target.value)} />
-            </FloatingInput>
-          )}
-
-          <motion.div className="flex gap-3 pt-4">
-            {step > 1 && (
-              <Button type="button" variant="secondary" onClick={() => setStep((s) => s - 1)} className="flex-1">
-                {t('form.back')}
-              </Button>
-            )}
-            {step < 3 ? (
-              <Button type="button" onClick={() => validateStep() && setStep((s) => s + 1)} className="flex-1">
-                {t('form.next')}
-              </Button>
-            ) : (
-              <Button type="button" onClick={submit} disabled={loading} className="flex-1">
-                {loading ? t('common.loading') : t('form.submit')}
-              </Button>
-            )}
-          </motion.div>
-        </motion.form>
-      </AnimatePresence>
-    </GlassCard>
+      <Button type="submit" disabled={loading} className="w-full">
+        {loading ? t('common.loading') : t('form.submit')}
+      </Button>
+    </form>
   );
 }
 

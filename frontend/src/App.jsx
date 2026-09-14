@@ -8,7 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LegalDisclaimerModal from './components/legal/LegalDisclaimerModal';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
-import { SITE } from './constants/site';
+import { legalServiceSchema } from './constants/site';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const FocusAreasPage = lazy(() => import('./pages/FocusAreasPage'));
@@ -18,6 +18,7 @@ const CaseStudiesPage = lazy(() => import('./pages/CaseStudiesPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const InternshipPage = lazy(() => import('./pages/InternshipPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfUse = lazy(() => import('./pages/TermsOfUse'));
 const Disclaimer = lazy(() => import('./pages/Disclaimer'));
@@ -41,25 +42,9 @@ function PageSkeleton() {
   );
 }
 
-const orgSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'LegalService',
-  name: SITE.name,
+const orgSchema = legalServiceSchema({
   url: typeof window !== 'undefined' ? window.location.origin : 'https://shivammishraassociates.com',
-  telephone: SITE.phone,
-  email: SITE.email,
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: SITE.address,
-    addressLocality: 'Lucknow',
-    addressRegion: 'Uttar Pradesh',
-    postalCode: '211001',
-    addressCountry: 'IN',
-  },
-  areaServed: 'IN',
-  priceRange: '$$',
-  openingHours: 'Mo-Su 09:00-21:30',
-};
+});
 
 const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
@@ -70,7 +55,7 @@ function AppRoutes() {
         defaultTitle="Mishra Juris Chamber | Trusted Legal Counsel in India"
         titleTemplate="%s | Mishra Juris Chamber"
       >
-        <meta name="theme-color" content="#0B0F19" />
+        <meta name="theme-color" content="#F7F5F0" />
         <meta property="og:site_name" content={SITE.name} />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
@@ -99,11 +84,9 @@ function AppRoutes() {
           <Route
             path="/contact"
             element={
-              <ProtectedRoute>
-                <Suspense fallback={<PageSkeleton />}>
-                  <ContactPage />
-                </Suspense>
-              </ProtectedRoute>
+              <Suspense fallback={<PageSkeleton />}>
+                <ContactPage />
+              </Suspense>
             }
           />
           <Route
@@ -135,6 +118,9 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route element={<MainLayout />}>
+          <Route path="*" element={<Suspense fallback={<PageSkeleton />}><NotFoundPage /></Suspense>} />
+        </Route>
       </Routes>
     </>
   );

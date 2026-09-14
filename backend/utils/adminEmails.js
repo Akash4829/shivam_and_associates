@@ -1,3 +1,11 @@
+/**
+ * Bootstrap admin allowlist.
+ *
+ * Source of truth for authorization is `users.role` in the database.
+ * These emails are used only to promote matching accounts to role=admin
+ * on login/register, and as a fallback for stale JWTs. They are not a
+ * substitute for the role column.
+ */
 function parseEmailList(value) {
   return String(value || '')
     .split(',')
